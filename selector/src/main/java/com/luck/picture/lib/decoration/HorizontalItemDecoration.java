@@ -2,7 +2,6 @@ package com.luck.picture.lib.decoration;
 
 import android.graphics.Rect;
 import android.view.View;
-
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -15,11 +14,14 @@ import androidx.recyclerview.widget.RecyclerView;
 public class HorizontalItemDecoration extends RecyclerView.ItemDecoration {
 
     private final int spanCount;
-    private final int spacing;
+    private final int leftSpacing, rightSpacing, topSpacing, bottomSpacing;
 
-    public HorizontalItemDecoration(int spanCount, int spacing) {
+    public HorizontalItemDecoration(int spanCount, int leftSpacing, int rightSpacing, int topSpacing, int bottomSpacing) {
         this.spanCount = spanCount;
-        this.spacing = spacing;
+        this.leftSpacing = leftSpacing;
+        this.rightSpacing = rightSpacing;
+        this.topSpacing = topSpacing;
+        this.bottomSpacing = bottomSpacing;
     }
 
     @Override
@@ -27,14 +29,14 @@ public class HorizontalItemDecoration extends RecyclerView.ItemDecoration {
         int position = parent.getChildAdapterPosition(view);
         int column = position % spanCount;
         if (position == 0) {
-            outRect.left = spacing - column * spacing / spanCount;
+            outRect.left = leftSpacing - column * leftSpacing / spanCount;
         } else {
-            outRect.left = column * spacing / spanCount;
+            outRect.left = column * leftSpacing / spanCount;
         }
-        outRect.right = spacing - (column + 1) * spacing / spanCount;
+        outRect.right = rightSpacing - (column + 1) * rightSpacing / spanCount;
         if (position < spanCount) {
-            outRect.top = spacing;
+            outRect.top = topSpacing;
         }
-        outRect.bottom = spacing;
+        outRect.bottom = bottomSpacing;
     }
 }

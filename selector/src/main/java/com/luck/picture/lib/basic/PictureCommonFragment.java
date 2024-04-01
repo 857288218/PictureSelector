@@ -1,8 +1,5 @@
 package com.luck.picture.lib.basic;
 
-import static android.app.Activity.RESULT_OK;
-import static android.view.KeyEvent.ACTION_UP;
-
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Dialog;
@@ -16,43 +13,37 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.text.TextUtils;
+import android.util.DisplayMetrics;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
-
 import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.core.view.ViewCompat;
 import androidx.fragment.app.Fragment;
-
+import androidx.recyclerview.widget.LinearSmoothScroller;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.recyclerview.widget.SimpleItemAnimator;
+import com.luck.picture.lib.PictureSelectorFragment;
+import com.luck.picture.lib.PictureSelectorPreviewFragment;
 import com.luck.picture.lib.R;
+import com.luck.picture.lib.adapter.holder.PreviewGalleryAdapter;
 import com.luck.picture.lib.app.PictureAppMaster;
-import com.luck.picture.lib.config.Crop;
-import com.luck.picture.lib.config.CustomIntentKey;
-import com.luck.picture.lib.config.InjectResourceSource;
-import com.luck.picture.lib.config.PermissionEvent;
-import com.luck.picture.lib.config.PictureConfig;
-import com.luck.picture.lib.config.PictureMimeType;
-import com.luck.picture.lib.config.SelectLimitType;
-import com.luck.picture.lib.config.SelectMimeType;
-import com.luck.picture.lib.config.SelectModeConfig;
-import com.luck.picture.lib.config.SelectorConfig;
-import com.luck.picture.lib.config.SelectorProviders;
+import com.luck.picture.lib.config.*;
+import com.luck.picture.lib.decoration.HorizontalItemDecoration;
+import com.luck.picture.lib.decoration.WrapContentLinearLayoutManager;
 import com.luck.picture.lib.dialog.PhotoItemSelectedDialog;
 import com.luck.picture.lib.dialog.PictureLoadingDialog;
 import com.luck.picture.lib.dialog.RemindDialog;
 import com.luck.picture.lib.engine.PictureSelectorEngine;
 import com.luck.picture.lib.entity.LocalMedia;
 import com.luck.picture.lib.immersive.ImmersiveManager;
-import com.luck.picture.lib.interfaces.OnCallbackIndexListener;
-import com.luck.picture.lib.interfaces.OnCallbackListener;
-import com.luck.picture.lib.interfaces.OnItemClickListener;
-import com.luck.picture.lib.interfaces.OnKeyValueResultCallbackListener;
-import com.luck.picture.lib.interfaces.OnRecordAudioInterceptListener;
-import com.luck.picture.lib.interfaces.OnRequestPermissionListener;
+import com.luck.picture.lib.interfaces.*;
 import com.luck.picture.lib.language.LanguageConfig;
 import com.luck.picture.lib.language.PictureLanguageUtils;
 import com.luck.picture.lib.loader.IBridgeMediaLoader;
@@ -65,29 +56,19 @@ import com.luck.picture.lib.service.ForegroundService;
 import com.luck.picture.lib.style.PictureWindowAnimationStyle;
 import com.luck.picture.lib.style.SelectMainStyle;
 import com.luck.picture.lib.thread.PictureThreadUtils;
-import com.luck.picture.lib.utils.ActivityCompatHelper;
-import com.luck.picture.lib.utils.BitmapUtils;
-import com.luck.picture.lib.utils.DateUtils;
-import com.luck.picture.lib.utils.FileDirMap;
-import com.luck.picture.lib.utils.MediaStoreUtils;
-import com.luck.picture.lib.utils.MediaUtils;
-import com.luck.picture.lib.utils.PictureFileUtils;
-import com.luck.picture.lib.utils.SdkVersionUtils;
-import com.luck.picture.lib.utils.ToastUtils;
-
+import com.luck.picture.lib.utils.*;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.InputStream;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+
+import static android.app.Activity.RESULT_OK;
+import static android.view.KeyEvent.ACTION_UP;
 
 /**
  * @author：luck
@@ -97,59 +78,70 @@ import java.util.concurrent.ConcurrentHashMap;
 public abstract class PictureCommonFragment extends Fragment implements IPictureSelectorCommonEvent {
     public static final String TAG = PictureCommonFragment.class.getSimpleName();
     /**
-     * PermissionResultCallback
-     */
-    private PermissionResultCallback mPermissionResultCallback;
-
-    /**
      * IBridgePictureBehavior
      */
     protected IBridgePictureBehavior iBridgePictureBehavior;
-
     /**
      * page
      */
     protected int mPage = 1;
-
     /**
      * Media Loader engine
      */
     protected IBridgeMediaLoader mLoader;
-
     /**
      * PictureSelector Config
      */
     protected SelectorConfig selectorConfig;
-
-    /**
-     * Loading Dialog
-     */
-    private Dialog mLoadingDialog;
-
-    /**
-     * click sound
-     */
-    private SoundPool soundPool;
-
-    /**
-     * click sound effect id
-     */
-    private int soundID;
-
-    /**
-     * fragment enter anim duration
-     */
-    private long enterAnimDuration;
-
     /**
      * tipsDialog
      */
     protected Dialog tipsDialog;
-
+    protected RecyclerView mGalleryRecycle;
+    protected PreviewGalleryAdapter mGalleryAdapter;
+    /**
+     * PermissionResultCallback
+     */
+    private PermissionResultCallback mPermissionResultCallback;
+    /**
+     * Loading Dialog
+     */
+    private Dialog mLoadingDialog;
+    /**
+     * click sound
+     */
+    private SoundPool soundPool;
+    /**
+     * click sound effect id
+     */
+    private int soundID;
+    /**
+     * fragment enter anim duration
+     */
+    private long enterAnimDuration;
     /**
      * Context
      */
     private Context context;
+
+    /**
+     * 根据类型获取相应的Toast文案
+     *
+     * @param context
+     * @param mimeType
+     * @param maxSelectNum
+     * @return
+     */
+    @SuppressLint("StringFormatInvalid")
+    private static String getTipsMsg(Context context, String mimeType, int maxSelectNum) {
+        if (PictureMimeType.isHasVideo(mimeType)) {
+            return context.getString(R.string.ps_message_video_max_num, String.valueOf(maxSelectNum));
+        } else if (PictureMimeType.isHasAudio(mimeType)) {
+            return context.getString(R.string.ps_message_audio_max_num, String.valueOf(maxSelectNum));
+        } else {
+            return context.getString(R.string.ps_message_max_num, String.valueOf(maxSelectNum));
+        }
+    }
 
     public String getFragmentTag() {
         return TAG;
@@ -163,7 +155,6 @@ public abstract class PictureCommonFragment extends Fragment implements IPicture
     public int getResourceId() {
         return 0;
     }
-
 
     @Override
     public void onFragmentResume() {
@@ -185,7 +176,6 @@ public abstract class PictureCommonFragment extends Fragment implements IPicture
 
     }
 
-
     @Override
     public void onSelectedChange(boolean isAddRemove, LocalMedia currentMedia) {
 
@@ -198,6 +188,12 @@ public abstract class PictureCommonFragment extends Fragment implements IPicture
 
     @Override
     public void sendChangeSubSelectPositionEvent(boolean adapterChange) {
+
+    }
+
+    // rjq+：开启画廊时通知选择结果编号变化,用于刷新画廊数据
+    @Override
+    public void sendChangeGallerySelectPositionEvent() {
 
     }
 
@@ -238,7 +234,7 @@ public abstract class PictureCommonFragment extends Fragment implements IPicture
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if (mPermissionResultCallback != null) {
-            PermissionChecker.getInstance().onRequestPermissionsResult(getContext(),permissions,grantResults, mPermissionResultCallback);
+            PermissionChecker.getInstance().onRequestPermissionsResult(getContext(), permissions, grantResults, mPermissionResultCallback);
             mPermissionResultCallback = null;
         }
     }
@@ -312,7 +308,6 @@ public abstract class PictureCommonFragment extends Fragment implements IPicture
         }
     }
 
-
     /**
      * 设置透明状态栏
      */
@@ -358,7 +353,6 @@ public abstract class PictureCommonFragment extends Fragment implements IPicture
         initAppLanguage();
     }
 
-
     @Nullable
     @Override
     public Animation onCreateAnimation(int transit, boolean enter, int nextAnim) {
@@ -383,16 +377,14 @@ public abstract class PictureCommonFragment extends Fragment implements IPicture
         return loadAnimation;
     }
 
-    public void setEnterAnimationDuration(long duration) {
-        this.enterAnimDuration = duration;
-    }
-
-
     public long getEnterAnimationDuration() {
         long duration = enterAnimDuration > 50 ? enterAnimDuration - 50 : enterAnimDuration;
         return duration >= 0 ? duration : 0;
     }
 
+    public void setEnterAnimationDuration(long duration) {
+        this.enterAnimDuration = duration;
+    }
 
     @Override
     public int confirmSelect(LocalMedia currentMedia, boolean isSelected) {
@@ -456,12 +448,12 @@ public abstract class PictureCommonFragment extends Fragment implements IPicture
                     selectVideoSize++;
                 }
             }
-            if (checkWithMimeTypeValidity(currentMedia,isSelected, curMimeType, selectVideoSize, curFileSize, curDuration)) {
+            if (checkWithMimeTypeValidity(currentMedia, isSelected, curMimeType, selectVideoSize, curFileSize, curDuration)) {
                 return SelectedManager.INVALID;
             }
         } else {
             // 单一型模式
-            if (checkOnlyMimeTypeValidity(currentMedia,isSelected, curMimeType, selectorConfig.getResultFirstMimeType(), curFileSize, curDuration)) {
+            if (checkOnlyMimeTypeValidity(currentMedia, isSelected, curMimeType, selectorConfig.getResultFirstMimeType(), curFileSize, curDuration)) {
                 return SelectedManager.INVALID;
             }
         }
@@ -547,7 +539,7 @@ public abstract class PictureCommonFragment extends Fragment implements IPicture
                 // 视频小于最低指定的长度
                 if (selectorConfig.onSelectLimitTipsListener != null) {
                     boolean isSelectLimit = selectorConfig.onSelectLimitTipsListener
-                            .onSelectLimitTips(getAppContext(), media,  selectorConfig,
+                            .onSelectLimitTips(getAppContext(), media, selectorConfig,
                                     SelectLimitType.SELECT_MIN_VIDEO_SECOND_SELECT_LIMIT);
                     if (isSelectLimit) {
                         return true;
@@ -561,7 +553,7 @@ public abstract class PictureCommonFragment extends Fragment implements IPicture
                 // 视频时长超过了指定的长度
                 if (selectorConfig.onSelectLimitTipsListener != null) {
                     boolean isSelectLimit = selectorConfig.onSelectLimitTipsListener
-                            .onSelectLimitTips(getAppContext(),  media, selectorConfig,
+                            .onSelectLimitTips(getAppContext(), media, selectorConfig,
                                     SelectLimitType.SELECT_MAX_VIDEO_SECOND_SELECT_LIMIT);
                     if (isSelectLimit) {
                         return true;
@@ -575,7 +567,7 @@ public abstract class PictureCommonFragment extends Fragment implements IPicture
                 if (!isSelected && selectorConfig.getSelectedResult().size() >= selectorConfig.maxSelectNum) {
                     if (selectorConfig.onSelectLimitTipsListener != null) {
                         boolean isSelectLimit = selectorConfig.onSelectLimitTipsListener
-                                .onSelectLimitTips(getAppContext(),  media, selectorConfig,
+                                .onSelectLimitTips(getAppContext(), media, selectorConfig,
                                         SelectLimitType.SELECT_MAX_SELECT_LIMIT);
                         if (isSelectLimit) {
                             return true;
@@ -624,7 +616,7 @@ public abstract class PictureCommonFragment extends Fragment implements IPicture
             if (fileSize < selectorConfig.selectMinFileSize) {
                 if (selectorConfig.onSelectLimitTipsListener != null) {
                     boolean isSelectLimit = selectorConfig.onSelectLimitTipsListener
-                            .onSelectLimitTips(getAppContext(),  media, selectorConfig,
+                            .onSelectLimitTips(getAppContext(), media, selectorConfig,
                                     SelectLimitType.SELECT_MIN_FILE_SIZE_LIMIT);
                     if (isSelectLimit) {
                         return true;
@@ -642,7 +634,7 @@ public abstract class PictureCommonFragment extends Fragment implements IPicture
                     // 如果先选择的是视频
                     if (selectorConfig.onSelectLimitTipsListener != null) {
                         boolean isSelectLimit = selectorConfig.onSelectLimitTipsListener
-                                .onSelectLimitTips(getAppContext(),  media, selectorConfig, SelectLimitType.SELECT_MAX_VIDEO_SELECT_LIMIT);
+                                .onSelectLimitTips(getAppContext(), media, selectorConfig, SelectLimitType.SELECT_MAX_VIDEO_SELECT_LIMIT);
                         if (isSelectLimit) {
                             return true;
                         }
@@ -655,7 +647,7 @@ public abstract class PictureCommonFragment extends Fragment implements IPicture
                 // 视频小于最低指定的长度
                 if (selectorConfig.onSelectLimitTipsListener != null) {
                     boolean isSelectLimit = selectorConfig.onSelectLimitTipsListener
-                            .onSelectLimitTips(getAppContext(),  media, selectorConfig, SelectLimitType.SELECT_MIN_VIDEO_SECOND_SELECT_LIMIT);
+                            .onSelectLimitTips(getAppContext(), media, selectorConfig, SelectLimitType.SELECT_MIN_VIDEO_SECOND_SELECT_LIMIT);
                     if (isSelectLimit) {
                         return true;
                     }
@@ -668,7 +660,7 @@ public abstract class PictureCommonFragment extends Fragment implements IPicture
                 // 视频时长超过了指定的长度
                 if (selectorConfig.onSelectLimitTipsListener != null) {
                     boolean isSelectLimit = selectorConfig.onSelectLimitTipsListener
-                            .onSelectLimitTips(getAppContext(),  media, selectorConfig, SelectLimitType.SELECT_MAX_VIDEO_SECOND_SELECT_LIMIT);
+                            .onSelectLimitTips(getAppContext(), media, selectorConfig, SelectLimitType.SELECT_MAX_VIDEO_SECOND_SELECT_LIMIT);
                     if (isSelectLimit) {
                         return true;
                     }
@@ -681,7 +673,7 @@ public abstract class PictureCommonFragment extends Fragment implements IPicture
                 if (!isSelected && selectorConfig.getSelectedResult().size() >= selectorConfig.maxSelectNum) {
                     if (selectorConfig.onSelectLimitTipsListener != null) {
                         boolean isSelectLimit = selectorConfig.onSelectLimitTipsListener
-                                .onSelectLimitTips(getAppContext(),  media, selectorConfig, SelectLimitType.SELECT_MAX_SELECT_LIMIT);
+                                .onSelectLimitTips(getAppContext(), media, selectorConfig, SelectLimitType.SELECT_MAX_SELECT_LIMIT);
                         if (isSelectLimit) {
                             return true;
                         }
@@ -695,7 +687,7 @@ public abstract class PictureCommonFragment extends Fragment implements IPicture
                 // 音频小于最低指定的长度
                 if (selectorConfig.onSelectLimitTipsListener != null) {
                     boolean isSelectLimit = selectorConfig.onSelectLimitTipsListener
-                            .onSelectLimitTips(getAppContext(),  media, selectorConfig, SelectLimitType.SELECT_MIN_AUDIO_SECOND_SELECT_LIMIT);
+                            .onSelectLimitTips(getAppContext(), media, selectorConfig, SelectLimitType.SELECT_MIN_AUDIO_SECOND_SELECT_LIMIT);
                     if (isSelectLimit) {
                         return true;
                     }
@@ -707,7 +699,7 @@ public abstract class PictureCommonFragment extends Fragment implements IPicture
                 // 音频时长超过了指定的长度
                 if (selectorConfig.onSelectLimitTipsListener != null) {
                     boolean isSelectLimit = selectorConfig.onSelectLimitTipsListener
-                            .onSelectLimitTips(getAppContext(),  media, selectorConfig, SelectLimitType.SELECT_MAX_AUDIO_SECOND_SELECT_LIMIT);
+                            .onSelectLimitTips(getAppContext(), media, selectorConfig, SelectLimitType.SELECT_MAX_AUDIO_SECOND_SELECT_LIMIT);
                     if (isSelectLimit) {
                         return true;
                     }
@@ -720,7 +712,7 @@ public abstract class PictureCommonFragment extends Fragment implements IPicture
                 if (!isSelected && selectorConfig.getSelectedResult().size() >= selectorConfig.maxSelectNum) {
                     if (selectorConfig.onSelectLimitTipsListener != null) {
                         boolean isSelectLimit = selectorConfig.onSelectLimitTipsListener
-                                .onSelectLimitTips(getAppContext(),  media, selectorConfig, SelectLimitType.SELECT_MAX_SELECT_LIMIT);
+                                .onSelectLimitTips(getAppContext(), media, selectorConfig, SelectLimitType.SELECT_MAX_SELECT_LIMIT);
                         if (isSelectLimit) {
                             return true;
                         }
@@ -750,25 +742,6 @@ public abstract class PictureCommonFragment extends Fragment implements IPicture
             tipsDialog.show();
         } catch (Exception e) {
             e.printStackTrace();
-        }
-    }
-
-    /**
-     * 根据类型获取相应的Toast文案
-     *
-     * @param context
-     * @param mimeType
-     * @param maxSelectNum
-     * @return
-     */
-    @SuppressLint("StringFormatInvalid")
-    private static String getTipsMsg(Context context, String mimeType, int maxSelectNum) {
-        if (PictureMimeType.isHasVideo(mimeType)) {
-            return context.getString(R.string.ps_message_video_max_num, String.valueOf(maxSelectNum));
-        } else if (PictureMimeType.isHasAudio(mimeType)) {
-            return context.getString(R.string.ps_message_audio_max_num, String.valueOf(maxSelectNum));
-        } else {
-            return context.getString(R.string.ps_message_max_num, String.valueOf(maxSelectNum));
         }
     }
 
@@ -1460,7 +1433,7 @@ public abstract class PictureCommonFragment extends Fragment implements IPicture
                     } else {
                         LocalMedia media = queue.get(srcPath);
                         if (media != null) {
-                            if (SdkVersionUtils.isQ()){
+                            if (SdkVersionUtils.isQ()) {
                                 if (!TextUtils.isEmpty(compressPath) && (compressPath.contains("Android/data/")
                                         || compressPath.contains("data/user/"))) {
                                     media.setCompressPath(compressPath);
@@ -2030,7 +2003,7 @@ public abstract class PictureCommonFragment extends Fragment implements IPicture
     /**
      * Get the video player engine again, provided that the user implements the IApp interface in the Application
      */
-    private void createVideoPlayerEngine(){
+    private void createVideoPlayerEngine() {
         if (selectorConfig.videoPlayerEngine == null) {
             PictureSelectorEngine baseEngine = PictureAppMaster.getInstance().getPictureSelectorEngine();
             if (baseEngine != null) {
@@ -2135,6 +2108,133 @@ public abstract class PictureCommonFragment extends Fragment implements IPicture
      */
     protected SelectorResult getResult(int resultCode, ArrayList<LocalMedia> data) {
         return new SelectorResult(resultCode, data != null ? PictureSelector.putIntentResult(data) : null);
+    }
+
+    protected void initSelectGalleryRecyclerView(ViewGroup group) {
+        SelectMainStyle selectMainStyle = selectorConfig.selectorStyle.getSelectMainStyle();
+        mGalleryRecycle = new RecyclerView(getContext());
+        mGalleryRecycle.setId(ViewCompat.generateViewId());
+        if (this instanceof PictureSelectorPreviewFragment) {
+            if (StyleUtils.checkStyleValidity(selectMainStyle.getAdapterPreviewGalleryBackgroundResource())) {
+                mGalleryRecycle.setBackgroundResource(selectMainStyle.getAdapterPreviewGalleryBackgroundResource());
+            } else {
+                mGalleryRecycle.setBackgroundResource(R.drawable.ps_preview_gallery_bg);
+            }
+        } else if (this instanceof PictureSelectorFragment) {
+            if (StyleUtils.checkStyleValidity(selectMainStyle.getAdapterGalleryBackgroundResource())) {
+                mGalleryRecycle.setBackgroundResource(selectMainStyle.getAdapterGalleryBackgroundResource());
+            } else {
+                mGalleryRecycle.setBackgroundResource(R.drawable.ps_preview_gallery_bg);
+            }
+        }
+        group.addView(mGalleryRecycle);
+
+        ViewGroup.LayoutParams layoutParams = mGalleryRecycle.getLayoutParams();
+        if (layoutParams instanceof ConstraintLayout.LayoutParams) {
+            ConstraintLayout.LayoutParams params = (ConstraintLayout.LayoutParams) layoutParams;
+            params.width = ConstraintLayout.LayoutParams.MATCH_PARENT;
+            params.height = ConstraintLayout.LayoutParams.WRAP_CONTENT;
+            params.bottomToTop = R.id.bottom_nar_bar;
+            params.startToStart = ConstraintLayout.LayoutParams.PARENT_ID;
+            params.endToEnd = ConstraintLayout.LayoutParams.PARENT_ID;
+        }
+        WrapContentLinearLayoutManager layoutManager = new WrapContentLinearLayoutManager(getContext()) {
+            @Override
+            public void smoothScrollToPosition(RecyclerView recyclerView, RecyclerView.State state, int position) {
+                super.smoothScrollToPosition(recyclerView, state, position);
+                LinearSmoothScroller smoothScroller = new LinearSmoothScroller(recyclerView.getContext()) {
+                    @Override
+                    protected float calculateSpeedPerPixel(DisplayMetrics displayMetrics) {
+                        return 100F / displayMetrics.densityDpi;
+                    }
+                };
+                smoothScroller.setTargetPosition(position);
+                startSmoothScroll(smoothScroller);
+            }
+        };
+        RecyclerView.ItemAnimator itemAnimator = mGalleryRecycle.getItemAnimator();
+        if (itemAnimator != null) {
+            ((SimpleItemAnimator) itemAnimator).setSupportsChangeAnimations(false);
+        }
+        if (mGalleryRecycle.getItemDecorationCount() == 0) {
+            int paddingLeft = this instanceof PictureSelectorPreviewFragment ? selectMainStyle.getAdapterPreviewGalleryPaddingLeft() : selectMainStyle.getAdapterGalleryPaddingLeft();
+            int paddingRight = this instanceof PictureSelectorPreviewFragment ? selectMainStyle.getAdapterPreviewGalleryPaddingRight() : selectMainStyle.getAdapterGalleryPaddingRight();
+            int leftSpace = this instanceof PictureSelectorPreviewFragment ? selectMainStyle.getAdapterPreviewGalleryItemLeftSpace() : selectMainStyle.getAdapterGalleryItemLeftSpace();
+            int rightSpace = this instanceof PictureSelectorPreviewFragment ? selectMainStyle.getAdapterPreviewGalleryItemRightSpace() : selectMainStyle.getAdapterGalleryItemRightSpace();
+            int topSpace = getGalleryRecycleItemDecorationTopSpace();
+            int bottomSpace = getGalleryRecycleItemDecorationBottomSpace();
+            if (leftSpace == -1) {
+                leftSpace = getGalleryRecycleItemDecorationDefaultSpace();
+            }
+            if (rightSpace == -1) {
+                rightSpace = getGalleryRecycleItemDecorationDefaultSpace();
+            }
+            if (paddingLeft == -1) {
+                paddingLeft = getGalleryRecycleItemDecorationDefaultSpace();
+            }
+            if (paddingRight == -1) {
+                paddingRight = getGalleryRecycleItemDecorationDefaultSpace();
+            }
+            // 使用ClipToPadding + padding实现paddingLeft + paddingRight内容也能滚动
+            mGalleryRecycle.setClipToPadding(false);
+            mGalleryRecycle.setPadding(paddingLeft, 0, paddingRight, 0);
+            mGalleryRecycle.addItemDecoration(new HorizontalItemDecoration(Integer.MAX_VALUE, leftSpace, rightSpace, topSpace, bottomSpace));
+        }
+        layoutManager.setOrientation(WrapContentLinearLayoutManager.HORIZONTAL);
+        mGalleryRecycle.setLayoutManager(layoutManager);
+        if (selectorConfig.getSelectCount() > 0) {
+            mGalleryRecycle.setLayoutAnimation(AnimationUtils
+                    .loadLayoutAnimation(getContext(), R.anim.ps_anim_layout_fall_enter));
+        }
+    }
+
+    private int getGalleryRecycleItemDecorationDefaultSpace() {
+        return DensityUtil.dip2px(getContext(), 8);
+    }
+
+    public int getGalleryRecycleItemDecorationTopSpace() {
+        SelectMainStyle selectMainStyle = selectorConfig.selectorStyle.getSelectMainStyle();
+        int space = this instanceof PictureSelectorPreviewFragment ? selectMainStyle.getAdapterPreviewGalleryItemTopSpace() : selectMainStyle.getAdapterGalleryItemTopSpace();
+        if (space == -1) {
+            space = getGalleryRecycleItemDecorationDefaultSpace();
+        }
+        return space;
+    }
+
+    public int getGalleryRecycleItemDecorationBottomSpace() {
+        SelectMainStyle selectMainStyle = selectorConfig.selectorStyle.getSelectMainStyle();
+        int space = this instanceof PictureSelectorPreviewFragment ? selectMainStyle.getAdapterPreviewGalleryItemBottomSpace() : selectMainStyle.getAdapterGalleryItemBottomSpace();
+        if (space == -1) {
+            space = getGalleryRecycleItemDecorationDefaultSpace();
+        }
+        return space;
+    }
+
+    /**
+     * 刷新画廊数据
+     */
+    protected void notifyGalleryData(boolean isAddRemove, LocalMedia currentMedia) {
+        boolean isPreviewDisplayGallery = this instanceof PictureSelectorPreviewFragment && selectorConfig.selectorStyle.getSelectMainStyle().isPreviewDisplaySelectGallery();
+        boolean isDisplayGallery = this instanceof PictureSelectorFragment && selectorConfig.selectorStyle.getSelectMainStyle().isDisplaySelectGallery();
+        if (mGalleryAdapter != null && (isPreviewDisplayGallery || isDisplayGallery)) {
+            if (mGalleryRecycle.getVisibility() == View.INVISIBLE || mGalleryRecycle.getVisibility() == View.GONE) {
+                mGalleryRecycle.setVisibility(View.VISIBLE);
+            }
+            if (isAddRemove) {
+                if (selectorConfig.selectionMode == SelectModeConfig.SINGLE) {
+                    mGalleryAdapter.clear();
+                }
+                mGalleryAdapter.addGalleryData(currentMedia);
+                mGalleryRecycle.smoothScrollToPosition(mGalleryAdapter.getItemCount() - 1);
+            } else {
+                mGalleryAdapter.removeGalleryData(currentMedia);
+                if (selectorConfig.getSelectCount() == 0) {
+                    // rjq+: 如果没有选中item了，则整体刷新，避免下一次选中第一个item后会闪烁一下
+                    mGalleryAdapter.notifyDataSetChanged();
+                    mGalleryRecycle.setVisibility(View.GONE);
+                }
+            }
+        }
     }
 
     /**

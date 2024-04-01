@@ -34,23 +34,7 @@ import com.luck.picture.lib.engine.UriToFileTransformEngine;
 import com.luck.picture.lib.engine.VideoPlayerEngine;
 import com.luck.picture.lib.entity.LocalMedia;
 import com.luck.picture.lib.entity.LocalMediaFolder;
-import com.luck.picture.lib.interfaces.OnBitmapWatermarkEventListener;
-import com.luck.picture.lib.interfaces.OnCameraInterceptListener;
-import com.luck.picture.lib.interfaces.OnCustomLoadingListener;
-import com.luck.picture.lib.interfaces.OnGridItemSelectAnimListener;
-import com.luck.picture.lib.interfaces.OnInjectLayoutResourceListener;
-import com.luck.picture.lib.interfaces.OnMediaEditInterceptListener;
-import com.luck.picture.lib.interfaces.OnPermissionDeniedListener;
-import com.luck.picture.lib.interfaces.OnPermissionDescriptionListener;
-import com.luck.picture.lib.interfaces.OnPermissionsInterceptListener;
-import com.luck.picture.lib.interfaces.OnPreviewInterceptListener;
-import com.luck.picture.lib.interfaces.OnQueryFilterListener;
-import com.luck.picture.lib.interfaces.OnRecordAudioInterceptListener;
-import com.luck.picture.lib.interfaces.OnResultCallbackListener;
-import com.luck.picture.lib.interfaces.OnSelectAnimListener;
-import com.luck.picture.lib.interfaces.OnSelectFilterListener;
-import com.luck.picture.lib.interfaces.OnSelectLimitTipsListener;
-import com.luck.picture.lib.interfaces.OnVideoThumbnailEventListener;
+import com.luck.picture.lib.interfaces.*;
 import com.luck.picture.lib.language.LanguageConfig;
 import com.luck.picture.lib.style.PictureSelectorStyle;
 import com.luck.picture.lib.style.PictureWindowAnimationStyle;
@@ -294,6 +278,16 @@ public final class PictureSelectionModel {
         return this;
     }
 
+    public PictureSelectionModel setOnOpenCameraClickInterceptorListener(OnOpenCameraClickInterceptorListener listener) {
+        selectionConfig.onOpenCameraClickInterceptorListener = listener;
+        return this;
+    }
+
+    // rjq+: BottomNavBar组件提供外部监听SelectedChange
+    public PictureSelectionModel setBottomNavBarSelectedChangeListener(OnBottomNavBarSelectedChangeListener listener) {
+        selectionConfig.onBottomNavBarSelectedChangeListener = listener;
+        return this;
+    }
 
     /**
      * Intercept Record Audio click events, and users can implement their own Record Audio framework
@@ -577,6 +571,21 @@ public final class PictureSelectionModel {
         return this;
     }
 
+    public PictureSelectionModel setDefaultMaskColorFilterColor(int color) {
+        selectionConfig.defaultColorFilterColor = color;
+        return this;
+    }
+
+    public PictureSelectionModel setMaxSelectMaskColorFilterColor(int color) {
+        selectionConfig.maxSelectColorFilterColor = color;
+        return this;
+    }
+
+    public PictureSelectionModel setSelectMaskColorFilterColor(int color) {
+        selectionConfig.selectColorFilterColor = color;
+        return this;
+    }
+
     /**
      * Do you need to display the original controller
      * <p>
@@ -741,6 +750,11 @@ public final class PictureSelectionModel {
      */
     public PictureSelectionModel setDefaultAlbumName(String defaultAlbumName) {
         selectionConfig.defaultAlbumName = defaultAlbumName;
+        return this;
+    }
+
+    public PictureSelectionModel setDefaultVideoFolderName(String defaultName) {
+        selectionConfig.defaultVideoFolderName = defaultName;
         return this;
     }
 
@@ -1187,6 +1201,11 @@ public final class PictureSelectionModel {
      */
     public PictureSelectionModel isPreviewFullScreenMode(boolean isFullScreenModel) {
         selectionConfig.isPreviewFullScreenMode = isFullScreenModel;
+        return this;
+    }
+
+    public PictureSelectionModel isPreviewSelectReturn(boolean selectReturn) {
+        selectionConfig.isPreviewSelectReturn = selectReturn;
         return this;
     }
 

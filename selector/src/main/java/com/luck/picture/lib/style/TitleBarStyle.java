@@ -14,6 +14,12 @@ public class TitleBarStyle {
      * 标题栏左边关闭样式
      */
     private int titleLeftBackResource;
+    // rjq+：标题栏左边关闭按钮MarginStart
+
+    private int titleLeftBackMarginStart;
+    // rjq+：标题栏左边关闭按钮Padding
+
+    private int titleLeftBackPadding;
 
     /**
      * 预览标题栏左边关闭样式
@@ -135,6 +141,22 @@ public class TitleBarStyle {
         this.titleLeftBackResource = titleLeftBackResource;
     }
 
+    public int getTitleLeftBackMarginStart() {
+        return titleLeftBackMarginStart;
+    }
+
+    public void setTitleLeftBackMarginStart(int marginStart) {
+        this.titleLeftBackMarginStart = marginStart;
+    }
+
+    public int getTitleLeftBackPadding() {
+        return titleLeftBackPadding;
+    }
+
+    public void setTitleLeftBackPadding(int padding) {
+        this.titleLeftBackPadding = padding;
+    }
+
     public int getPreviewTitleLeftBackResource() {
         return previewTitleLeftBackResource;
     }
@@ -151,12 +173,12 @@ public class TitleBarStyle {
         this.titleDefaultText = titleDefaultText;
     }
 
-    public int getTitleDefaultTextResId() {
-        return titleDefaultTextResId;
-    }
-
     public void setTitleDefaultText(int resId) {
         this.titleDefaultTextResId = resId;
+    }
+
+    public int getTitleDefaultTextResId() {
+        return titleDefaultTextResId;
     }
 
     public int getTitleTextSize() {
@@ -255,12 +277,12 @@ public class TitleBarStyle {
         this.titleCancelText = titleCancelText;
     }
 
-    public int getTitleCancelTextResId() {
-        return titleCancelTextResId;
-    }
-
     public void setTitleCancelText(int resId) {
         this.titleCancelTextResId = resId;
+    }
+
+    public int getTitleCancelTextResId() {
+        return titleCancelTextResId;
     }
 
     public int getTitleCancelTextSize() {

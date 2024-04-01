@@ -1,5 +1,7 @@
 package com.luck.picture.lib.style;
 
+import com.luck.picture.lib.R;
+import android.view.Gravity;
 import android.widget.RelativeLayout;
 
 /**
@@ -39,6 +41,8 @@ public class SelectMainStyle {
      */
     private boolean isPreviewDisplaySelectGallery;
 
+    // 相册页是否显示选择画廊
+    private boolean isDisplaySelectGallery;
     /**
      * 预览页选择按钮MarginRight
      * <p>
@@ -66,6 +70,10 @@ public class SelectMainStyle {
      * 预览页选择按钮字体大小
      */
     private int previewSelectTextSize;
+    // rjq+: 预览页选择框中num字体大小
+    private int previewSelectNumTextSize;
+    // rjq+: 预览页选择框中num字体颜色
+    private int previewSelectNumTextColor;
 
     /**
      * 预览页选择按钮字体颜色
@@ -74,9 +82,12 @@ public class SelectMainStyle {
 
 
     /**
-     * 勾选样式
+     * media item勾选样式
      */
     private int selectBackground;
+
+    // rjq+：BaseRecyclerMediaHolder中tvCheck margin，勾选View margin
+    private int selectMargin;
 
     /**
      * 预览样式勾选样式
@@ -146,6 +157,22 @@ public class SelectMainStyle {
      */
     private int selectBackgroundResources;
 
+    // rjq+：CompleteSelectView中ps_tv_complete选中背景
+    private int selectCompleteBtnBackgroundResources;
+    // rjq+：CompleteSelectView中ps_tv_complete默认背景
+    private int selectCompleteBtnNormalBackgroundResources;
+
+    // rjq+：选择按钮(CompleteSelectView中ps_tv_complete)选中宽度
+    private int selectViewWidth;
+    // rjq+：选择按钮(CompleteSelectView中ps_tv_complete)选中高度
+    private int selectViewHeight;
+
+    // rjq+：选择按钮(CompleteSelectView中ps_tv_complete)默认宽度
+    private int selectViewNormalWidth;
+    // rjq+：选择按钮(CompleteSelectView中ps_tv_complete)默认高度
+    private int selectViewNormalHeight;
+
+
     /**
      * RecyclerView列表item间隙
      * <p>
@@ -187,11 +214,28 @@ public class SelectMainStyle {
      * 资源类型标识
      */
     private int adapterDurationDrawableLeft;
+    // rjq+: videoItem或audioItem是否显示DrawableLeft
+    private boolean isShowAdapterDurationDrawableLeft = true;
 
     /**
      * 时长文字字体大小
      */
     private int adapterDurationTextSize;
+
+    /**
+     * 时长文字Gravity
+     */
+    private int adapterDurationTextGravity = Gravity.CENTER_VERTICAL;
+
+    /**
+     * 时长文字MarginEnd
+     */
+    private int adapterDurationTextMarginEnd;
+
+    /**
+     * 时长文字MarginBottom
+     */
+    private int adapterDurationTextMarginBottom;
 
     /**
      * 时长文字颜色
@@ -207,12 +251,17 @@ public class SelectMainStyle {
     /**
      * 时长文字阴影背景
      */
-    private int adapterDurationBackgroundResources;
+    private int adapterDurationBackgroundResources = R.drawable.ps_ic_shadow_bg;
 
     /**
      * 拍照按钮背景色
      */
     private int adapterCameraBackgroundColor;
+
+    /**
+     * 拍照Item背景色
+     */
+    private int adapterCameraItemBackgroundColor;
 
     /**
      * 拍照按钮图标
@@ -233,6 +282,11 @@ public class SelectMainStyle {
      * 拍照按钮文本字体色值
      */
     private int adapterCameraTextColor;
+
+    /**
+     * 是否显示拍照按钮文本
+     */
+    private boolean isShowAdapterCameraText = true;
     /**
      * 拍照按钮文本字体大小
      */
@@ -274,6 +328,28 @@ public class SelectMainStyle {
      * 预览页画廊背景色
      */
     private int adapterPreviewGalleryBackgroundResource;
+    // rjq+: 相册页画廊背景色
+    private int adapterGalleryBackgroundResource;
+    // rjq+: 相册页画廊是否显示选中item border
+    private boolean isShowAdapterGalleryItemSelectBorder;
+    // rjq+: 画廊选中视频中间播放icon
+    private int adapterPreviewGalleryVideoItemIconResource;
+    private int adapterGalleryVideoItemIconResource;
+    // rjq+: 画廊是否显示选中视频中间播放icon
+    private boolean isShowAdapterPreviewGalleryVideoItemIcon = true;
+    private boolean isShowAdapterGalleryVideoItemIcon = true;
+    // rjq+: 画廊是否显示选中视频时长
+    private boolean isShowAdapterPreviewGalleryVideoItemDuration;
+    private boolean isShowAdapterGalleryVideoItemDuration;
+    // rjq+: 画廊视频时长文字大小
+    private int adapterPreviewGalleryVideoItemDurationTextSize;
+    private int adapterGalleryVideoItemDurationTextSize;
+    // rjq+: 画廊视频时长文字颜色
+    private int adapterPreviewGalleryVideoItemDurationTextColor;
+    private int adapterGalleryVideoItemDurationTextColor;
+    // 画廊视频时长文字背景资源
+    private int adapterPreviewGalleryVideoItemDurationBgRes;
+    private int adapterGalleryVideoItemDurationBgRes;
 
     /**
      * 预览页画廊item大小
@@ -281,7 +357,45 @@ public class SelectMainStyle {
      * use unit dp
      * </p>
      */
-    private int adapterPreviewGalleryItemSize;
+    private int adapterPreviewGalleryImageSize;
+    // rjq+: 相册页画廊item大小
+    private int adapterGalleryImageSize;
+    // rjq+：画廊item长按时是否震动
+    private boolean adapterPreviewGalleryItemLongClickVibrator;
+    private boolean adapterGalleryItemLongClickVibrator;
+    // rjq+：画廊item拖动时透明度
+    private float adapterPreviewGalleryItemMovementAlpha = 0.7F;
+    private float adapterGalleryItemMovementAlpha = 0.7F;
+    // rjq+：画廊item拖动时放大倍数
+    private float adapterPreviewGalleryItemScale = 1.1F;
+    private float adapterGalleryItemScale = 1.1F;
+    // rjq+：画廊是否显示右上角删除icon
+    private boolean isShowAdapterPreviewGalleryItemDelete;
+    private boolean isShowAdapterGalleryItemDelete = true;
+    // rjq+：预览页画廊PaddingLeft
+    private int adapterPreviewGalleryPaddingLeft = -1;
+    // rjq+：预览页画廊item LeftSpace
+    private int adapterPreviewGalleryItemLeftSpace = -1;
+    // rjq+：预览页画廊PaddingRight
+    private int adapterPreviewGalleryPaddingRight = -1;
+    // rjq+：预览页画廊RightSpace
+    private int adapterPreviewGalleryItemRightSpace = -1;
+    // rjq+：预览页画廊TopSpace
+    private int adapterPreviewGalleryItemTopSpace = -1;
+    // rjq+：预览页画廊BottomSpace
+    private int adapterPreviewGalleryItemBottomSpace = -1;
+    // rjq+：相册页画廊PaddingLeft
+    private int adapterGalleryItemPaddingLeft = -1;
+    // rjq+：相册页画廊item LeftSpace
+    private int adapterGalleryItemLeftSpace = -1;
+    // rjq+：相册页画廊paddingRight
+    private int adapterGalleryPaddingRight = -1;
+    // rjq+：相册页画廊RightSpace
+    private int adapterGalleryItemRightSpace = -1;
+    // rjq+：相册页画廊TopSpace
+    private int adapterGalleryItemTopSpace = -1;
+    // rjq+：相册页画廊BottomSpace
+    private int adapterGalleryItemBottomSpace = -1;
 
     public SelectMainStyle() {
 
@@ -335,6 +449,14 @@ public class SelectMainStyle {
         isPreviewDisplaySelectGallery = previewDisplaySelectGallery;
     }
 
+    public boolean isDisplaySelectGallery() {
+        return isDisplaySelectGallery;
+    }
+
+    public void setDisplaySelectGallery(boolean displaySelectGallery) {
+        isDisplaySelectGallery = displaySelectGallery;
+    }
+
     public int getPreviewSelectMarginRight() {
         return previewSelectMarginRight;
     }
@@ -351,12 +473,12 @@ public class SelectMainStyle {
         this.previewSelectText = previewSelectText;
     }
 
-    public int getPreviewSelectTextResId() {
-        return previewSelectTextResId;
-    }
-
     public void setPreviewSelectText(int resId) {
         this.previewSelectTextResId = resId;
+    }
+
+    public int getPreviewSelectTextResId() {
+        return previewSelectTextResId;
     }
 
     public int getPreviewSelectTextSize() {
@@ -365,6 +487,22 @@ public class SelectMainStyle {
 
     public void setPreviewSelectTextSize(int previewSelectTextSize) {
         this.previewSelectTextSize = previewSelectTextSize;
+    }
+
+    public int getPreviewSelectNumTextSize() {
+        return previewSelectNumTextSize;
+    }
+
+    public void setPreviewSelectNumTextSize(int textSize) {
+        this.previewSelectNumTextSize = textSize;
+    }
+
+    public int getPreviewSelectNumTextColor() {
+        return previewSelectNumTextColor;
+    }
+
+    public void setPreviewSelectNumTextColor(int textColor) {
+        this.previewSelectNumTextColor = textColor;
     }
 
     public int getPreviewSelectTextColor() {
@@ -381,6 +519,14 @@ public class SelectMainStyle {
 
     public void setSelectBackground(int selectBackground) {
         this.selectBackground = selectBackground;
+    }
+
+    public int getSelectMargin() {
+        return selectMargin;
+    }
+
+    public void setSelectMargin(int margin) {
+        this.selectMargin = margin;
     }
 
     public int getPreviewSelectBackground() {
@@ -423,12 +569,12 @@ public class SelectMainStyle {
         this.selectNormalText = selectNormalText;
     }
 
-    public int getSelectNormalTextResId() {
-        return selectNormalTextResId;
-    }
-
     public void setSelectNormalText(int resId) {
         this.selectNormalTextResId = resId;
+    }
+
+    public int getSelectNormalTextResId() {
+        return selectNormalTextResId;
     }
 
     public int getSelectNormalTextSize() {
@@ -463,12 +609,12 @@ public class SelectMainStyle {
         this.selectText = selectText;
     }
 
-    public int getSelectTextResId() {
-        return selectTextResId;
-    }
-
     public void setSelectText(int resId) {
         this.selectTextResId = resId;
+    }
+
+    public int getSelectTextResId() {
+        return selectTextResId;
     }
 
     public int getSelectTextSize() {
@@ -493,6 +639,40 @@ public class SelectMainStyle {
 
     public void setSelectBackgroundResources(int selectBackgroundResources) {
         this.selectBackgroundResources = selectBackgroundResources;
+    }
+
+    public int getSelectCompleteBtnBackgroundResources() {
+        return selectCompleteBtnBackgroundResources;
+    }
+
+    public void setSelectCompleteBtnBackgroundResources(int resources) {
+        this.selectCompleteBtnBackgroundResources = resources;
+    }
+
+    public int getSelectCompleteBtnNormalBackgroundResources() {
+        return selectCompleteBtnNormalBackgroundResources;
+    }
+
+    public void setSelectCompleteBtnNormalBackgroundResources(int resources) {
+        this.selectCompleteBtnNormalBackgroundResources = resources;
+    }
+
+    public int[] getSelectCompleteBtnSize() {
+        return new int[]{selectViewWidth, selectViewHeight};
+    }
+
+    public void setSelectCompleteBtnSize(int selectViewWidth, int selectViewHeight) {
+        this.selectViewWidth = selectViewWidth;
+        this.selectViewHeight = selectViewHeight;
+    }
+
+    public int[] getSelectCompleteBtnNormalSize() {
+        return new int[]{selectViewNormalWidth, selectViewNormalHeight};
+    }
+
+    public void setSelectCompleteBtnNormalSize(int width, int height) {
+        this.selectViewNormalWidth = width;
+        this.selectViewNormalHeight = height;
     }
 
     public int getAdapterItemSpacingSize() {
@@ -551,12 +731,44 @@ public class SelectMainStyle {
         this.adapterDurationDrawableLeft = adapterDurationDrawableLeft;
     }
 
+    public boolean isShowAdapterDurationDrawableLeft() {
+        return isShowAdapterDurationDrawableLeft;
+    }
+
+    public void setShowAdapterDurationDrawableLeft(boolean show) {
+        isShowAdapterDurationDrawableLeft = show;
+    }
+
     public int getAdapterDurationTextSize() {
         return adapterDurationTextSize;
     }
 
     public void setAdapterDurationTextSize(int adapterDurationTextSize) {
         this.adapterDurationTextSize = adapterDurationTextSize;
+    }
+
+    public int getAdapterDurationTextGravity() {
+        return adapterDurationTextGravity;
+    }
+
+    public void setAdapterDurationTextGravity(int gravity) {
+        this.adapterDurationTextGravity = gravity;
+    }
+
+    public int getAdapterDurationTextMarginEnd() {
+        return adapterDurationTextMarginEnd;
+    }
+
+    public void setAdapterDurationTextMarginEnd(int marginEnd) {
+        this.adapterDurationTextMarginEnd = marginEnd;
+    }
+
+    public int getAdapterDurationTextMarginBottom() {
+        return adapterDurationTextMarginBottom;
+    }
+
+    public void setAdapterDurationTextMarginBottom(int marginBottom) {
+        this.adapterDurationTextMarginBottom = marginBottom;
     }
 
     public int getAdapterDurationTextColor() {
@@ -591,6 +803,14 @@ public class SelectMainStyle {
         this.adapterCameraBackgroundColor = adapterCameraBackgroundColor;
     }
 
+    public int getAdapterCameraItemBackgroundColor() {
+        return adapterCameraItemBackgroundColor;
+    }
+
+    public void setAdapterCameraItemBackgroundColor(int adapterCameraItemBackgroundColor) {
+        this.adapterCameraItemBackgroundColor = adapterCameraItemBackgroundColor;
+    }
+
     public int getAdapterCameraDrawableTop() {
         return adapterCameraDrawableTop;
     }
@@ -607,12 +827,12 @@ public class SelectMainStyle {
         this.adapterCameraText = adapterCameraText;
     }
 
-    public int getAdapterCameraTextResId() {
-        return adapterCameraTextResId;
-    }
-
     public void setAdapterCameraText(int resId) {
         this.adapterCameraTextResId = resId;
+    }
+
+    public int getAdapterCameraTextResId() {
+        return adapterCameraTextResId;
     }
 
     public int getAdapterCameraTextColor() {
@@ -621,6 +841,14 @@ public class SelectMainStyle {
 
     public void setAdapterCameraTextColor(int adapterCameraTextColor) {
         this.adapterCameraTextColor = adapterCameraTextColor;
+    }
+
+    public boolean getIsShowAdapterCameraText() {
+        return isShowAdapterCameraText;
+    }
+
+    public void setIsShowAdapterCameraText(boolean isShow) {
+        this.isShowAdapterCameraText = isShow;
     }
 
     public int getAdapterCameraTextSize() {
@@ -695,12 +923,76 @@ public class SelectMainStyle {
         this.adapterPreviewGalleryBackgroundResource = adapterPreviewGalleryBackgroundResource;
     }
 
-    public int getAdapterPreviewGalleryItemSize() {
-        return adapterPreviewGalleryItemSize;
+    public int getAdapterGalleryBackgroundResource() {
+        return adapterGalleryBackgroundResource;
     }
 
-    public void setAdapterPreviewGalleryItemSize(int adapterPreviewGalleryItemSize) {
-        this.adapterPreviewGalleryItemSize = adapterPreviewGalleryItemSize;
+    public void setAdapterGalleryBackgroundResource(int adapterGalleryBackgroundResource) {
+        this.adapterGalleryBackgroundResource = adapterGalleryBackgroundResource;
+    }
+
+    public int getAdapterGalleryVideoItemIconResource() {
+        return adapterGalleryVideoItemIconResource;
+    }
+
+    public void setAdapterGalleryVideoItemIconResource(int adapterGalleryVideoItemIconResource) {
+        this.adapterGalleryVideoItemIconResource = adapterGalleryVideoItemIconResource;
+    }
+
+    public int getAdapterPreviewGalleryVideoItemIconResource() {
+        return adapterPreviewGalleryVideoItemIconResource;
+    }
+
+    public void setAdapterPreviewGalleryVideoItemIconResource(int adapterPreviewGalleryVideoItemIconResource) {
+        this.adapterPreviewGalleryVideoItemIconResource = adapterPreviewGalleryVideoItemIconResource;
+    }
+
+    public boolean isShowAdapterGalleryVideoItemIcon() {
+        return isShowAdapterGalleryVideoItemIcon;
+    }
+
+    public void setShowAdapterGalleryVideoItemIcon(boolean show) {
+        this.isShowAdapterGalleryVideoItemIcon = show;
+    }
+
+    public boolean isShowAdapterGalleryVideoItemDuration() {
+        return isShowAdapterGalleryVideoItemDuration;
+    }
+
+    public void setShowAdapterGalleryVideoItemDuration(boolean show) {
+        this.isShowAdapterGalleryVideoItemDuration = show;
+    }
+
+    public boolean isShowAdapterPreviewGalleryVideoItemDuration() {
+        return isShowAdapterPreviewGalleryVideoItemDuration;
+    }
+
+    public void setShowAdapterPreviewGalleryVideoItemDuration(boolean show) {
+        this.isShowAdapterPreviewGalleryVideoItemDuration = show;
+    }
+
+    public boolean isShowAdapterPreviewGalleryVideoItemIcon() {
+        return isShowAdapterPreviewGalleryVideoItemIcon;
+    }
+
+    public void setShowAdapterPreviewGalleryVideoItemIcon(boolean show) {
+        this.isShowAdapterPreviewGalleryVideoItemIcon = show;
+    }
+
+    public int getAdapterPreviewGalleryImageSize() {
+        return adapterPreviewGalleryImageSize;
+    }
+
+    public void setAdapterPreviewGalleryImageSize(int adapterPreviewGalleryItemSize) {
+        this.adapterPreviewGalleryImageSize = adapterPreviewGalleryItemSize;
+    }
+
+    public int getAdapterGalleryImageSize() {
+        return adapterGalleryImageSize;
+    }
+
+    public void setAdapterGalleryImageSize(int adapterGalleryItemSize) {
+        this.adapterGalleryImageSize = adapterGalleryItemSize;
     }
 
     public int getPreviewBackgroundColor() {
@@ -709,5 +1001,221 @@ public class SelectMainStyle {
 
     public void setPreviewBackgroundColor(int previewBackgroundColor) {
         this.previewBackgroundColor = previewBackgroundColor;
+    }
+
+    public int getAdapterPreviewGalleryPaddingLeft() {
+        return adapterPreviewGalleryPaddingLeft;
+    }
+
+    public void setAdapterPreviewGalleryPaddingLeft(int space) {
+        adapterPreviewGalleryPaddingLeft = space;
+    }
+
+    public int getAdapterGalleryPaddingLeft() {
+        return adapterGalleryItemPaddingLeft;
+    }
+
+    public void setAdapterGalleryPaddingLeft(int space) {
+        adapterGalleryItemPaddingLeft = space;
+    }
+
+    public int getAdapterPreviewGalleryItemLeftSpace() {
+        return adapterPreviewGalleryItemLeftSpace;
+    }
+
+    public void setAdapterPreviewGalleryItemLeftSpace(int space) {
+        adapterPreviewGalleryItemLeftSpace = space;
+    }
+
+    public int getAdapterGalleryItemLeftSpace() {
+        return adapterGalleryItemLeftSpace;
+    }
+
+    public void setAdapterGalleryItemLeftSpace(int space) {
+        adapterGalleryItemLeftSpace = space;
+    }
+
+    public int getAdapterPreviewGalleryPaddingRight() {
+        return adapterPreviewGalleryPaddingRight;
+    }
+
+    public void setAdapterPreviewGalleryPaddingRight(int space) {
+        adapterPreviewGalleryPaddingRight = space;
+    }
+
+    public int getAdapterGalleryPaddingRight() {
+        return adapterGalleryPaddingRight;
+    }
+
+    public void setAdapterGalleryPaddingRight(int space) {
+        adapterGalleryPaddingRight = space;
+    }
+
+    public int getAdapterPreviewGalleryItemRightSpace() {
+        return adapterPreviewGalleryItemRightSpace;
+    }
+
+    public void setAdapterPreviewGalleryItemRightSpace(int space) {
+        adapterPreviewGalleryItemRightSpace = space;
+    }
+
+    public int getAdapterGalleryItemRightSpace() {
+        return adapterGalleryItemRightSpace;
+    }
+
+    public void setAdapterGalleryItemRightSpace(int space) {
+        adapterGalleryItemRightSpace = space;
+    }
+
+    public int getAdapterPreviewGalleryItemTopSpace() {
+        return adapterPreviewGalleryItemTopSpace;
+    }
+
+    public void setAdapterPreviewGalleryItemTopSpace(int space) {
+        adapterPreviewGalleryItemTopSpace = space;
+    }
+
+    public int getAdapterGalleryItemTopSpace() {
+        return adapterGalleryItemTopSpace;
+    }
+
+    public void setAdapterGalleryItemTopSpace(int space) {
+        adapterGalleryItemTopSpace = space;
+    }
+
+    public int getAdapterPreviewGalleryItemBottomSpace() {
+        return adapterPreviewGalleryItemBottomSpace;
+    }
+
+    public void setAdapterPreviewGalleryItemBottomSpace(int space) {
+        adapterPreviewGalleryItemBottomSpace = space;
+    }
+
+    public int getAdapterGalleryItemBottomSpace() {
+        return adapterGalleryItemBottomSpace;
+    }
+
+    public void setAdapterGalleryItemBottomSpace(int space) {
+        adapterGalleryItemBottomSpace = space;
+    }
+
+    public boolean getAdapterPreviewGalleryItemLongClickVibrator() {
+        return adapterPreviewGalleryItemLongClickVibrator;
+    }
+
+    public void setAdapterPreviewGalleryItemLongClickVibrator(boolean isVibrator) {
+        adapterPreviewGalleryItemLongClickVibrator = isVibrator;
+    }
+
+    public boolean isShowAdapterGalleryItemSelectBorder() {
+        return isShowAdapterGalleryItemSelectBorder;
+    }
+
+    public void setShowAdapterGalleryItemSelectBorder(boolean isShow) {
+        isShowAdapterGalleryItemSelectBorder = isShow;
+    }
+
+    public boolean getAdapterGalleryItemLongClickVibrator() {
+        return adapterGalleryItemLongClickVibrator;
+    }
+
+    public void setAdapterGalleryItemLongClickVibrator(boolean isVibrator) {
+        adapterGalleryItemLongClickVibrator = isVibrator;
+    }
+
+    public float getAdapterPreviewGalleryItemMovementAlpha() {
+        return adapterPreviewGalleryItemMovementAlpha;
+    }
+
+    public void setAdapterPreviewGalleryItemMovementAlpha(float alpha) {
+        adapterPreviewGalleryItemMovementAlpha = alpha;
+    }
+
+    public float getAdapterGalleryItemMovementAlpha() {
+        return adapterGalleryItemMovementAlpha;
+    }
+
+    public void setAdapterGalleryItemMovementAlpha(float alpha) {
+        adapterGalleryItemMovementAlpha = alpha;
+    }
+
+    public float getAdapterPreviewGalleryItemScale() {
+        return adapterPreviewGalleryItemScale;
+    }
+
+    public void setAdapterPreviewGalleryItemScale(float scale) {
+        adapterPreviewGalleryItemScale = scale;
+    }
+
+    public float getAdapterGalleryItemScale() {
+        return adapterGalleryItemScale;
+    }
+
+    public void setAdapterGalleryItemScale(float scale) {
+        adapterGalleryItemScale = scale;
+    }
+
+    public boolean isShowAdapterPreviewGalleryItemDelete() {
+        return isShowAdapterPreviewGalleryItemDelete;
+    }
+
+    public void setShowAdapterPreviewGalleryItemDelete(boolean show) {
+        isShowAdapterPreviewGalleryItemDelete = show;
+    }
+
+    public boolean isShowAdapterGalleryItemDelete() {
+        return isShowAdapterGalleryItemDelete;
+    }
+
+    public void setShowAdapterGalleryItemDelete(boolean show) {
+        isShowAdapterGalleryItemDelete = show;
+    }
+
+    public int getAdapterGalleryVideoItemDurationTextSize() {
+        return adapterGalleryVideoItemDurationTextSize;
+    }
+
+    public void setAdapterGalleryVideoItemDurationTextSize(int textSize) {
+        adapterGalleryVideoItemDurationTextSize = textSize;
+    }
+
+    public int getAdapterPreviewGalleryVideoItemDurationTextSize() {
+        return adapterPreviewGalleryVideoItemDurationTextSize;
+    }
+
+    public void setAdapterPreviewGalleryVideoItemDurationTextSize(int textSize) {
+        adapterPreviewGalleryVideoItemDurationTextSize = textSize;
+    }
+
+    public int getAdapterPreviewGalleryVideoItemDurationTextColor() {
+        return adapterPreviewGalleryVideoItemDurationTextColor;
+    }
+
+    public void setAdapterPreviewGalleryVideoItemDurationTextColor(int textColor) {
+        adapterPreviewGalleryVideoItemDurationTextColor = textColor;
+    }
+
+    public int getAdapterGalleryVideoItemDurationTextColor() {
+        return adapterGalleryVideoItemDurationTextColor;
+    }
+
+    public void setAdapterGalleryVideoItemDurationTextColor(int textColor) {
+        adapterGalleryVideoItemDurationTextColor = textColor;
+    }
+
+    public int getAdapterGalleryVideoItemDurationBgRes() {
+        return adapterGalleryVideoItemDurationBgRes;
+    }
+
+    public void setAdapterGalleryVideoItemDurationBgRes(int bgRes) {
+        adapterGalleryVideoItemDurationBgRes = bgRes;
+    }
+
+    public int getAdapterPreviewGalleryVideoItemDurationBgRes() {
+        return adapterPreviewGalleryVideoItemDurationBgRes;
+    }
+
+    public void setAdapterPreviewGalleryVideoItemDurationBgRes(int bgRes) {
+        adapterPreviewGalleryVideoItemDurationBgRes = bgRes;
     }
 }

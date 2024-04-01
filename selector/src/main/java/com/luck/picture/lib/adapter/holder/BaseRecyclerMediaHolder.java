@@ -9,10 +9,8 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
-
 import com.luck.picture.lib.R;
 import com.luck.picture.lib.adapter.PictureImageGridAdapter;
 import com.luck.picture.lib.config.PictureMimeType;
@@ -41,20 +39,7 @@ public class BaseRecyclerMediaHolder extends RecyclerView.ViewHolder {
     public boolean isSelectNumberStyle;
     public boolean isHandleMask;
     private ColorFilter defaultColorFilter, selectColorFilter, maskWhiteColorFilter;
-
-    public static BaseRecyclerMediaHolder generate(ViewGroup parent, int viewType, int resource, SelectorConfig config) {
-        View itemView = LayoutInflater.from(parent.getContext()).inflate(resource, parent, false);
-        switch (viewType) {
-            case PictureImageGridAdapter.ADAPTER_TYPE_CAMERA:
-                return new CameraViewHolder(itemView);
-            case PictureImageGridAdapter.ADAPTER_TYPE_VIDEO:
-                return new VideoViewHolder(itemView, config);
-            case PictureImageGridAdapter.ADAPTER_TYPE_AUDIO:
-                return new AudioViewHolder(itemView, config);
-            default:
-                return new ImageViewHolder(itemView, config);
-        }
-    }
+    private PictureImageGridAdapter.OnItemClickListener listener;
 
     public BaseRecyclerMediaHolder(@NonNull View itemView) {
         super(itemView);
@@ -64,9 +49,9 @@ public class BaseRecyclerMediaHolder extends RecyclerView.ViewHolder {
         super(itemView);
         this.selectorConfig = config;
         this.mContext = itemView.getContext();
-        defaultColorFilter = StyleUtils.getColorFilter(mContext, R.color.ps_color_20);
-        selectColorFilter = StyleUtils.getColorFilter(mContext, R.color.ps_color_80);
-        maskWhiteColorFilter = StyleUtils.getColorFilter(mContext, R.color.ps_color_half_white);
+        defaultColorFilter = StyleUtils.getColorFilter(mContext, selectorConfig.defaultColorFilterColor);
+        selectColorFilter = StyleUtils.getColorFilter(mContext, selectorConfig.selectColorFilterColor);
+        maskWhiteColorFilter = StyleUtils.getColorFilter(mContext, selectorConfig.maxSelectColorFilterColor);
         SelectMainStyle selectMainStyle = selectorConfig.selectorStyle.getSelectMainStyle();
         isSelectNumberStyle = selectMainStyle.isSelectNumberStyle();
         ivPicture = itemView.findViewById(R.id.ivPicture);
@@ -95,6 +80,10 @@ public class BaseRecyclerMediaHolder extends RecyclerView.ViewHolder {
         if (StyleUtils.checkStyleValidity(adapterSelectBackground)) {
             tvCheck.setBackgroundResource(adapterSelectBackground);
         }
+        int adapterSelectMargin = selectMainStyle.getSelectMargin();
+        if (StyleUtils.checkSizeValidity(adapterSelectMargin)) {
+            ((RelativeLayout.LayoutParams) tvCheck.getLayoutParams()).setMargins(adapterSelectMargin, adapterSelectMargin, adapterSelectMargin, adapterSelectMargin);
+        }
         int[] selectStyleGravity = selectMainStyle.getAdapterSelectStyleGravity();
         if (StyleUtils.checkArrayValidity(selectStyleGravity)) {
             if (tvCheck.getLayoutParams() instanceof RelativeLayout.LayoutParams) {
@@ -109,13 +98,26 @@ public class BaseRecyclerMediaHolder extends RecyclerView.ViewHolder {
                     ((RelativeLayout.LayoutParams) btnCheck.getLayoutParams()).addRule(i);
                 }
             }
+        }
+        int clickArea = selectMainStyle.getAdapterSelectClickArea();
+        if (StyleUtils.checkSizeValidity(clickArea)) {
+            ViewGroup.LayoutParams clickAreaParams = btnCheck.getLayoutParams();
+            clickAreaParams.width = clickArea;
+            clickAreaParams.height = clickArea;
+        }
+    }
 
-            int clickArea = selectMainStyle.getAdapterSelectClickArea();
-            if (StyleUtils.checkSizeValidity(clickArea)) {
-                ViewGroup.LayoutParams clickAreaParams = btnCheck.getLayoutParams();
-                clickAreaParams.width = clickArea;
-                clickAreaParams.height = clickArea;
-            }
+    public static BaseRecyclerMediaHolder generate(ViewGroup parent, int viewType, int resource, SelectorConfig config) {
+        View itemView = LayoutInflater.from(parent.getContext()).inflate(resource, parent, false);
+        switch (viewType) {
+            case PictureImageGridAdapter.ADAPTER_TYPE_CAMERA:
+                return new CameraViewHolder(itemView);
+            case PictureImageGridAdapter.ADAPTER_TYPE_VIDEO:
+                return new VideoViewHolder(itemView, config);
+            case PictureImageGridAdapter.ADAPTER_TYPE_AUDIO:
+                return new AudioViewHolder(itemView, config);
+            default:
+                return new ImageViewHolder(itemView, config);
         }
     }
 
@@ -224,7 +226,6 @@ public class BaseRecyclerMediaHolder extends RecyclerView.ViewHolder {
         }
     }
 
-
     /**
      * 处理到达选择条件后的蒙层效果
      */
@@ -319,8 +320,6 @@ public class BaseRecyclerMediaHolder extends RecyclerView.ViewHolder {
             }
         }
     }
-
-    private PictureImageGridAdapter.OnItemClickListener listener;
 
     public void setOnItemClickListener(PictureImageGridAdapter.OnItemClickListener listener) {
         this.listener = listener;

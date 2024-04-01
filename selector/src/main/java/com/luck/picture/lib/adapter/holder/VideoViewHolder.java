@@ -11,6 +11,7 @@ import com.luck.picture.lib.config.SelectorConfig;
 import com.luck.picture.lib.entity.LocalMedia;
 import com.luck.picture.lib.style.SelectMainStyle;
 import com.luck.picture.lib.utils.DateUtils;
+import com.luck.picture.lib.utils.DensityUtil;
 import com.luck.picture.lib.utils.StyleUtils;
 
 /**
@@ -29,6 +30,9 @@ public class VideoViewHolder extends BaseRecyclerMediaHolder {
         if (StyleUtils.checkStyleValidity(drawableLeft)) {
             tvDuration.setCompoundDrawablesRelativeWithIntrinsicBounds(drawableLeft, 0, 0, 0);
         }
+        if (!adapterStyle.isShowAdapterDurationDrawableLeft()) {
+            tvDuration.setCompoundDrawablesRelativeWithIntrinsicBounds(0, 0, 0, 0);
+        }
         int textSize = adapterStyle.getAdapterDurationTextSize();
         if (StyleUtils.checkSizeValidity(textSize)) {
             tvDuration.setTextSize(textSize);
@@ -37,11 +41,20 @@ public class VideoViewHolder extends BaseRecyclerMediaHolder {
         if (StyleUtils.checkStyleValidity(textColor)) {
             tvDuration.setTextColor(textColor);
         }
+        int gravity = adapterStyle.getAdapterDurationTextGravity();
+        tvDuration.setGravity(gravity);
+
+        int marginEnd = adapterStyle.getAdapterDurationTextMarginEnd();
+        int marginBottom = adapterStyle.getAdapterDurationTextMarginBottom();
+        if (StyleUtils.checkSizeValidity(marginEnd)) {
+            ((RelativeLayout.LayoutParams) tvDuration.getLayoutParams()).setMarginEnd(marginEnd);
+        }
+        if (StyleUtils.checkSizeValidity(marginBottom)) {
+            ((RelativeLayout.LayoutParams) tvDuration.getLayoutParams()).bottomMargin = marginBottom;
+        }
 
         int shadowBackground = adapterStyle.getAdapterDurationBackgroundResources();
-        if (StyleUtils.checkStyleValidity(shadowBackground)) {
-            tvDuration.setBackgroundResource(shadowBackground);
-        }
+        tvDuration.setBackgroundResource(shadowBackground);
 
         int[] durationGravity = adapterStyle.getAdapterDurationGravity();
         if (StyleUtils.checkArrayValidity(durationGravity)) {

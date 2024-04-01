@@ -11,6 +11,7 @@ import android.widget.TextView;
 import androidx.core.content.ContextCompat;
 
 import com.luck.picture.lib.R;
+import com.luck.picture.lib.config.PictureMimeType;
 import com.luck.picture.lib.config.SelectorConfig;
 import com.luck.picture.lib.config.SelectorProviders;
 import com.luck.picture.lib.entity.LocalMedia;
@@ -28,8 +29,10 @@ import com.luck.picture.lib.utils.StyleUtils;
 public class BottomNavBar extends RelativeLayout implements View.OnClickListener {
     protected TextView tvPreview;
     protected TextView tvImageEditor;
-    private CheckBox originalCheckbox;
     protected SelectorConfig config;
+    protected OnBottomNavBarListener bottomNavBarListener;
+    protected TextView tvNotice;
+    private CheckBox originalCheckbox;
 
     public BottomNavBar(Context context) {
         super(context);
@@ -52,6 +55,7 @@ public class BottomNavBar extends RelativeLayout implements View.OnClickListener
         setFocusable(true);
         config = SelectorProviders.getInstance().getSelectorConfig();
         tvPreview = findViewById(R.id.ps_tv_preview);
+        tvNotice = findViewById(R.id.ps_tv_notice);
         tvImageEditor = findViewById(R.id.ps_tv_editor);
         originalCheckbox = findViewById(R.id.cb_original);
         tvPreview.setOnClickListener(this);
@@ -110,12 +114,7 @@ public class BottomNavBar extends RelativeLayout implements View.OnClickListener
             }
         }
 
-        int narBarHeight = bottomBarStyle.getBottomNarBarHeight();
-        if (StyleUtils.checkSizeValidity(narBarHeight)) {
-            getLayoutParams().height = narBarHeight;
-        } else {
-            getLayoutParams().height = DensityUtil.dip2px(getContext(), 46);
-        }
+        getLayoutParams().height = getBarHeight();
 
         int backgroundColor = bottomBarStyle.getBottomNarBarBackgroundColor();
         if (StyleUtils.checkStyleValidity(backgroundColor)) {
@@ -169,6 +168,43 @@ public class BottomNavBar extends RelativeLayout implements View.OnClickListener
         int originalTextColor = bottomBarStyle.getBottomOriginalTextColor();
         if (StyleUtils.checkStyleValidity(originalTextColor)) {
             originalCheckbox.setTextColor(originalTextColor);
+        }
+
+        if (bottomBarStyle.isShowBottomPreviewBtn()) {
+            tvPreview.setVisibility(VISIBLE);
+        } else {
+            tvPreview.setVisibility(GONE);
+        }
+
+        if (bottomBarStyle.isShowBottomNotice()) {
+            tvNotice.setVisibility(VISIBLE);
+        } else {
+            tvPreview.setVisibility(GONE);
+        }
+
+        int bottomNoticeColor = bottomBarStyle.getBottomNoticeTextColor();
+        if (StyleUtils.checkStyleValidity(bottomNoticeColor)) {
+            tvNotice.setTextColor(bottomNoticeColor);
+        }
+
+        int bottomNoticeTextSize = bottomBarStyle.getBottomNoticeTextSize();
+        if (StyleUtils.checkStyleValidity(bottomNoticeTextSize)) {
+            tvNotice.setTextSize(bottomNoticeTextSize);
+        }
+
+        String bottomNoticeText = bottomBarStyle.getBottomNoticeText();
+        if (StyleUtils.checkTextValidity(bottomNoticeText)) {
+            setNotice(bottomNoticeText);
+        }
+    }
+
+    public int getBarHeight() {
+        BottomNavBarStyle bottomBarStyle = config.selectorStyle.getBottomBarStyle();
+        int narBarHeight = bottomBarStyle.getBottomNarBarHeight();
+        if (!StyleUtils.checkSizeValidity(narBarHeight)) {
+            return DensityUtil.dip2px(getContext(), 48);
+        } else {
+            return narBarHeight;
         }
     }
 
@@ -224,6 +260,9 @@ public class BottomNavBar extends RelativeLayout implements View.OnClickListener
                 tvPreview.setText(getContext().getString(R.string.ps_preview));
             }
         }
+        if (config.onBottomNavBarSelectedChangeListener != null) {
+            config.onBottomNavBarSelectedChangeListener.onSelectedChange(this, config.getSelectedResult());
+        }
     }
 
     /**
@@ -258,7 +297,9 @@ public class BottomNavBar extends RelativeLayout implements View.OnClickListener
         }
     }
 
-    protected OnBottomNavBarListener bottomNavBarListener;
+    public void setNotice(String notice) {
+        tvNotice.setText(notice);
+    }
 
     /**
      * 预览NarBar的功能事件回调

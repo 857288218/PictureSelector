@@ -100,7 +100,10 @@ public final class LocalMediaLoader extends IBridgeMediaLoader {
                 try {
                     if (data != null) {
                         LocalMediaFolder allImageFolder = new LocalMediaFolder();
+                        // todo(rjq) 判断是否显示视频分类
+                        LocalMediaFolder allVideoFolder = new LocalMediaFolder();
                         ArrayList<LocalMedia> latelyImages = new ArrayList<>();
+                        ArrayList<LocalMedia> latelyVideos = new ArrayList<>();
                         int count = data.getCount();
                         if (count > 0) {
                             data.moveToFirst();
@@ -118,6 +121,10 @@ public final class LocalMediaLoader extends IBridgeMediaLoader {
                                 latelyImages.add(media);
                                 int imageNum = allImageFolder.getFolderTotalNum();
                                 allImageFolder.setFolderTotalNum(imageNum + 1);
+                                if (PictureMimeType.isHasVideo(media.getMimeType())) {
+                                    latelyVideos.add(media);
+                                    allVideoFolder.setFolderTotalNum(allVideoFolder.getFolderTotalNum() + 1);
+                                }
 
                             } while (data.moveToNext());
 
@@ -126,13 +133,25 @@ public final class LocalMediaLoader extends IBridgeMediaLoader {
                             if (selfFolder != null) {
                                 imageFolders.add(selfFolder);
                                 allImageFolder.setFolderTotalNum(allImageFolder.getFolderTotalNum() + selfFolder.getFolderTotalNum());
+                                // todo(rjq) 这里应该不用setData，latelyImages.addAll执行了
                                 allImageFolder.setData(selfFolder.getData());
                                 latelyImages.addAll(0, selfFolder.getData());
+                                for (int i=0; i<selfFolder.getData().size() - 1; i++) {
+                                    if (PictureMimeType.isHasVideo(selfFolder.getData().get(i).getMimeType())) {
+                                        allVideoFolder.setFolderTotalNum(allVideoFolder.getFolderTotalNum() + 1);
+                                        latelyVideos.add(0, selfFolder.getData().get(i));
+                                    }
+                                }
                                 if (MAX_SORT_SIZE > selfFolder.getFolderTotalNum()) {
                                     if (latelyImages.size() > MAX_SORT_SIZE) {
                                         SortUtils.sortLocalMediaAddedTime(latelyImages.subList(0, MAX_SORT_SIZE));
                                     } else {
                                         SortUtils.sortLocalMediaAddedTime(latelyImages);
+                                    }
+                                    if (latelyVideos.size() > MAX_SORT_SIZE) {
+                                        SortUtils.sortLocalMediaAddedTime(latelyVideos.subList(0, MAX_SORT_SIZE));
+                                    } else {
+                                        SortUtils.sortLocalMediaAddedTime(latelyVideos);
                                     }
                                 }
                             }
@@ -140,8 +159,7 @@ public final class LocalMediaLoader extends IBridgeMediaLoader {
                             if (latelyImages.size() > 0) {
                                 SortUtils.sortFolder(imageFolders);
                                 imageFolders.add(0, allImageFolder);
-                                allImageFolder.setFirstImagePath
-                                        (latelyImages.get(0).getPath());
+                                allImageFolder.setFirstImagePath(latelyImages.get(0).getPath());
                                 allImageFolder.setFirstMimeType(latelyImages.get(0).getMimeType());
                                 String folderName;
                                 if (TextUtils.isEmpty(getConfig().defaultAlbumName)) {
@@ -153,6 +171,20 @@ public final class LocalMediaLoader extends IBridgeMediaLoader {
                                 allImageFolder.setFolderName(folderName);
                                 allImageFolder.setBucketId(PictureConfig.ALL);
                                 allImageFolder.setData(latelyImages);
+                            }
+                            if (latelyVideos.size() > 0) {
+                                imageFolders.add(1, allVideoFolder);
+                                allVideoFolder.setFirstImagePath(latelyVideos.get(0).getPath());
+                                allVideoFolder.setFirstMimeType(latelyVideos.get(0).getMimeType());
+                                String folderName;
+                                if (TextUtils.isEmpty(getConfig().defaultVideoFolderName)) {
+                                    folderName = getContext().getString(R.string.ps_video_folder_name);
+                                } else {
+                                    folderName = getConfig().defaultVideoFolderName;
+                                }
+                                allVideoFolder.setFolderName(folderName);
+                                allVideoFolder.setBucketId(PictureConfig.VIDEO);
+                                allVideoFolder.setData(latelyVideos);
                             }
                         }
                     }

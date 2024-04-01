@@ -1,14 +1,20 @@
 package com.luck.picture.lib;
 
+import android.animation.*;
 import android.annotation.SuppressLint;
 import android.app.Service;
+import android.content.Intent;
+import android.graphics.Canvas;
 import android.os.Bundle;
 import android.os.SystemClock;
 import android.os.Vibrator;
+import android.provider.MediaStore;
 import android.text.TextUtils;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.view.animation.LinearInterpolator;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -16,11 +22,14 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.content.ContextCompat;
+import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.SimpleItemAnimator;
 
 import com.luck.picture.lib.adapter.PictureImageGridAdapter;
+import com.luck.picture.lib.adapter.holder.PreviewGalleryAdapter;
 import com.luck.picture.lib.animators.AlphaInAnimationAdapter;
 import com.luck.picture.lib.animators.AnimationType;
 import com.luck.picture.lib.animators.SlideInBottomAnimationAdapter;
@@ -71,10 +80,7 @@ import com.luck.picture.lib.widget.SlideSelectionHandler;
 import com.luck.picture.lib.widget.TitleBar;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 
 /**
  * @author：luck
@@ -89,6 +95,8 @@ public class PictureSelectorFragment extends PictureCommonFragment
      * 这个时间对应的是R.anim.ps_anim_modal_in里面的
      */
     private static int SELECT_ANIM_DURATION = 135;
+    protected boolean needScaleBig = true;
+    protected boolean needScaleSmall = false;
     private RecyclerPreloadView mRecycler;
     private TextView tvDataEmpty;
     private TitleBar titleBar;
@@ -107,12 +115,10 @@ public class PictureSelectorFragment extends PictureCommonFragment
      */
     private boolean isMemoryRecycling;
     private boolean isDisplayCamera;
-
     private PictureImageGridAdapter mAdapter;
-
     private AlbumListPopWindow albumListPopWindow;
-
     private SlideSelectTouchListener mDragSelectTouchListener;
+    private boolean needBottomNarBarGoneAnim;
 
     public static PictureSelectorFragment newInstance() {
         PictureSelectorFragment fragment = new PictureSelectorFragment();
@@ -154,6 +160,11 @@ public class PictureSelectorFragment extends PictureCommonFragment
         if (!isAddRemove) {
             sendChangeSubSelectPositionEvent(true);
         }
+        // 只有反选最后一个Item时先不刷新gallery,等gallery执行完动画再刷新，否则gallery就消失了看不到动画(当isSelectedShowBottomNavBarAnim=true时)
+        if (!needBottomNarBarGoneAnim || selectorConfig.getSelectCount() > 0) {
+            notifyGalleryData(isAddRemove, currentMedia);
+        }
+        isShowBottomBar(currentMedia);
     }
 
     @Override
@@ -171,6 +182,13 @@ public class PictureSelectorFragment extends PictureCommonFragment
                     mAdapter.notifyItemPositionChanged(media.position);
                 }
             }
+        }
+    }
+
+    @Override
+    public void sendChangeGallerySelectPositionEvent() {
+        if (selectorConfig.selectorStyle.getSelectMainStyle().isDisplaySelectGallery()) {
+            mGalleryAdapter.refreshSelectOrder();
         }
     }
 
@@ -247,14 +265,20 @@ public class PictureSelectorFragment extends PictureCommonFragment
         initTitleBar();
         initComplete();
         initRecycler(view);
+        initSelectGallery((ViewGroup) view);
         initBottomNavBar();
+        if (selectorConfig.selectorStyle.getBottomBarStyle().isSelectedShowBottomNavBar() && selectorConfig.selectorStyle.getBottomBarStyle().isSelectedShowBottomNavBarAnim()) {
+            // 如果需要从底部向上弹出的动画则bottomToBottom设置为parent,然后使用动画动态设置mRecycler的paddingBottom，使其和bottomBar同步向上
+            ConstraintLayout.LayoutParams params = (ConstraintLayout.LayoutParams) mRecycler.getLayoutParams();
+            params.bottomToBottom = ConstraintLayout.LayoutParams.PARENT_ID;
+            params.bottomToTop = ConstraintLayout.LayoutParams.UNSET;
+        }
         if (isMemoryRecycling) {
             recoverSaveInstanceData();
         } else {
             requestLoadData();
         }
     }
-
 
     @Override
     public void onFragmentResume() {
@@ -272,7 +296,6 @@ public class PictureSelectorFragment extends PictureCommonFragment
             isDisplayCamera = selectorConfig.isDisplayCamera;
         }
     }
-
 
     /**
      * 完成按钮
@@ -315,7 +338,6 @@ public class PictureSelectorFragment extends PictureCommonFragment
             });
         }
     }
-
 
     @Override
     public void onCreateLoader() {
@@ -398,7 +420,6 @@ public class PictureSelectorFragment extends PictureCommonFragment
         }
     }
 
-
     private void handleRecoverAlbumData(List<LocalMediaFolder> albumData) {
         if (ActivityCompatHelper.isDestroy(getActivity())) {
             return;
@@ -422,7 +443,6 @@ public class PictureSelectorFragment extends PictureCommonFragment
             showDataNull();
         }
     }
-
 
     private void requestLoadData() {
         mAdapter.setDisplayCamera(isDisplayCamera);
@@ -517,6 +537,7 @@ public class PictureSelectorFragment extends PictureCommonFragment
 
             @Override
             public void onItemClick(int position, LocalMediaFolder curFolder) {
+                // todo(rjq) 点击时候加载folder中的数据
                 isDisplayCamera = selectorConfig.isDisplayCamera && curFolder.getBucketId() == PictureConfig.ALL;
                 mAdapter.setDisplayCamera(isDisplayCamera);
                 titleBar.setTitle(curFolder.getFolderName());
@@ -587,7 +608,6 @@ public class PictureSelectorFragment extends PictureCommonFragment
         mRecycler.smoothScrollToPosition(0);
     }
 
-
     private void initBottomNavBar() {
         bottomNarBar.setBottomNavBarStyle();
         bottomNarBar.setOnBottomNavBarListener(new BottomNavBar.OnBottomNavBarListener() {
@@ -602,6 +622,51 @@ public class PictureSelectorFragment extends PictureCommonFragment
             }
         });
         bottomNarBar.setSelectedChange();
+        isShowBottomBar(null);
+    }
+
+    private void isShowBottomBar(LocalMedia currentMedia) {
+        if (selectorConfig.selectorStyle.getBottomBarStyle().isSelectedShowBottomNavBar()) {
+            int galleryHeight = 0;
+            if (selectorConfig.selectorStyle.getSelectMainStyle().isDisplaySelectGallery()) {
+                galleryHeight = mGalleryAdapter.getImageHeight(requireContext()) + mGalleryAdapter.getImageMarginTop(requireContext())
+                        + getGalleryRecycleItemDecorationTopSpace() + getGalleryRecycleItemDecorationBottomSpace();
+            }
+            float animHeight = bottomNarBar.getBarHeight() + galleryHeight;
+            if (selectorConfig.getSelectCount() > 0) {
+                if (bottomNarBar.getVisibility() == View.GONE && selectorConfig.selectorStyle.getBottomBarStyle().isSelectedShowBottomNavBarAnim()) {
+                    startBottomNavBarShowHideAnim(animHeight, 0);
+                    needBottomNarBarGoneAnim = true;
+                }
+                bottomNarBar.setVisibility(View.VISIBLE);
+                completeSelectView.setVisibility(View.VISIBLE);
+            } else if (needBottomNarBarGoneAnim) {
+                startBottomNavBarShowHideAnim(0, animHeight).addListener(new AnimatorListenerAdapter() {
+                    @Override
+                    public void onAnimationEnd(Animator animation) {
+                        bottomNarBar.setVisibility(View.GONE);
+                        completeSelectView.setVisibility(View.GONE);
+                        // 等动画执行完再remove gallery lastItem，否则gallery就消失了看不到向下位移动画
+                        notifyGalleryData(false, currentMedia);
+                    }
+                });
+            } else {
+                bottomNarBar.setVisibility(View.GONE);
+                completeSelectView.setVisibility(View.GONE);
+            }
+        }
+    }
+
+    private AnimatorSet startBottomNavBarShowHideAnim(float start, float end) {
+        AnimatorSet set = new AnimatorSet().setDuration(selectorConfig.selectorStyle.getBottomBarStyle().getSelectedShowBottomNavBarAnimDuration());
+        set.playTogether(ObjectAnimator.ofFloat(bottomNarBar, "translationY", start, end));
+        set.playTogether(ObjectAnimator.ofFloat(completeSelectView, "translationY", start, end));
+        set.playTogether(ObjectAnimator.ofFloat(mGalleryRecycle, "translationY", start, end));
+        ValueAnimator valueAnimator = ValueAnimator.ofFloat(end, start);
+        valueAnimator.addUpdateListener(animation -> mRecycler.setPadding(0, 0, 0, (int) ((float) animation.getAnimatedValue())));
+        set.playTogether(valueAnimator);
+        set.start();
+        return set;
     }
 
 
@@ -822,6 +887,9 @@ public class PictureSelectorFragment extends PictureCommonFragment
             @Override
             public void openCameraClick() {
                 if (DoubleUtils.isFastDoubleClick()) {
+                    return;
+                }
+                if (selectorConfig.onOpenCameraClickInterceptorListener != null && selectorConfig.onOpenCameraClickInterceptorListener.openCameraClickInterceptorListener()) {
                     return;
                 }
                 openSelectedCamera();
@@ -1284,6 +1352,156 @@ public class PictureSelectorFragment extends PictureCommonFragment
     private void hideDataNull() {
         if (tvDataEmpty.getVisibility() == View.VISIBLE) {
             tvDataEmpty.setVisibility(View.GONE);
+        }
+    }
+
+    protected void initSelectGallery(ViewGroup group) {
+        SelectMainStyle selectMainStyle = selectorConfig.selectorStyle.getSelectMainStyle();
+        if (selectMainStyle.isDisplaySelectGallery()) {
+            initSelectGalleryRecyclerView(group);
+            ConstraintLayout.LayoutParams params = (ConstraintLayout.LayoutParams) mRecycler.getLayoutParams();
+            params.bottomToTop = mGalleryRecycle.getId();
+
+            mGalleryAdapter = new PreviewGalleryAdapter(this, selectorConfig, false);
+            mGalleryRecycle.setAdapter(mGalleryAdapter);
+            mGalleryAdapter.setItemClickListener(new PreviewGalleryAdapter.OnItemClickListener() {
+                @Override
+                public void onItemClick(int position, LocalMedia media, View v) {
+                }
+
+                @Override
+                public void onItemDelete(int position, LocalMedia media, View v) {
+                    // 该方法会删除selectorConfig中选中数据，并调用各fragment的onSelectedChange刷新对应fragment中item选中序号和gallery数据
+                    confirmSelect(media, true);
+                }
+            });
+            ItemTouchHelper mItemTouchHelper = new ItemTouchHelper(new ItemTouchHelper.Callback() {
+                @Override
+                public boolean isLongPressDragEnabled() {
+                    return true;
+                }
+
+                @Override
+                public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
+                }
+
+                @Override
+                public int getMovementFlags(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder) {
+                    viewHolder.itemView.setAlpha(selectMainStyle.getAdapterGalleryItemMovementAlpha());
+                    return makeMovementFlags(ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT, 0);
+                }
+
+                @Override
+                public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder target) {
+                    try {
+                        //得到item原来的position
+                        int fromPosition = viewHolder.getAbsoluteAdapterPosition();
+                        //得到目标position
+                        int toPosition = target.getAbsoluteAdapterPosition();
+                        if (fromPosition < toPosition) {
+                            for (int i = fromPosition; i < toPosition; i++) {
+                                Collections.swap(mGalleryAdapter.getData(), i, i + 1);
+                                Collections.swap(selectorConfig.getSelectedResult(), i, i + 1);
+                            }
+                        } else {
+                            for (int i = fromPosition; i > toPosition; i--) {
+                                Collections.swap(mGalleryAdapter.getData(), i, i - 1);
+                                Collections.swap(selectorConfig.getSelectedResult(), i, i - 1);
+                            }
+                        }
+                        mGalleryAdapter.notifyItemMoved(fromPosition, toPosition);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                    return true;
+                }
+
+                @Override
+                public void onChildDraw(@NonNull Canvas c, @NonNull RecyclerView recyclerView,
+                                        @NonNull RecyclerView.ViewHolder viewHolder, float dX, float dY, int actionState, boolean isCurrentlyActive) {
+                    if (needScaleBig) {
+                        needScaleBig = false;
+                        float scale = selectMainStyle.getAdapterGalleryItemScale();
+                        AnimatorSet animatorSet = new AnimatorSet();
+                        animatorSet.playTogether(
+                                ObjectAnimator.ofFloat(viewHolder.itemView, "scaleX", 1.0F, scale),
+                                ObjectAnimator.ofFloat(viewHolder.itemView, "scaleY", 1.0F, scale));
+                        animatorSet.setDuration(50);
+                        animatorSet.setInterpolator(new LinearInterpolator());
+                        animatorSet.start();
+                        animatorSet.addListener(new AnimatorListenerAdapter() {
+                            @Override
+                            public void onAnimationEnd(Animator animation) {
+                                needScaleSmall = true;
+                            }
+                        });
+                    }
+                    super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive);
+                }
+
+                @Override
+                public void onSelectedChanged(@Nullable RecyclerView.ViewHolder viewHolder, int actionState) {
+                    super.onSelectedChanged(viewHolder, actionState);
+                }
+
+                @Override
+                public long getAnimationDuration(@NonNull RecyclerView recyclerView, int animationType, float animateDx, float animateDy) {
+                    return super.getAnimationDuration(recyclerView, animationType, animateDx, animateDy);
+                }
+
+                @Override
+                public void clearView(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder) {
+                    viewHolder.itemView.setAlpha(1.0F);
+                    if (needScaleSmall) {
+                        needScaleSmall = false;
+                        float scale = selectMainStyle.getAdapterGalleryItemScale();
+                        AnimatorSet animatorSet = new AnimatorSet();
+                        animatorSet.playTogether(
+                                ObjectAnimator.ofFloat(viewHolder.itemView, "scaleX", scale, 1.0F),
+                                ObjectAnimator.ofFloat(viewHolder.itemView, "scaleY", scale, 1.0F));
+                        animatorSet.setInterpolator(new LinearInterpolator());
+                        animatorSet.setDuration(50);
+                        animatorSet.start();
+                        animatorSet.addListener(new AnimatorListenerAdapter() {
+                            @Override
+                            public void onAnimationEnd(Animator animation) {
+                                needScaleBig = true;
+                            }
+                        });
+                    }
+                    super.clearView(recyclerView, viewHolder);
+                    mGalleryAdapter.notifyItemChanged(viewHolder.getAbsoluteAdapterPosition());
+                    if (selectorConfig.selectorStyle.getSelectMainStyle().isSelectNumberStyle()) {
+                        if (!ActivityCompatHelper.isDestroy(getActivity())) {
+                            List<Fragment> fragments = getActivity().getSupportFragmentManager().getFragments();
+                            for (int i = 0; i < fragments.size(); i++) {
+                                Fragment fragment = fragments.get(i);
+                                if (fragment instanceof PictureCommonFragment) {
+                                    // 调整完顺序后重新排序所有选中的LocalMedia。刷新选中item序号
+                                    ((PictureCommonFragment) fragment).sendChangeSubSelectPositionEvent(true);
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+            mItemTouchHelper.attachToRecyclerView(mGalleryRecycle);
+            mGalleryAdapter.setItemLongClickListener(new PreviewGalleryAdapter.OnItemLongClickListener() {
+                @Override
+                public void onItemLongClick(RecyclerView.ViewHolder holder, int position, View v) {
+                    if (selectMainStyle.getAdapterGalleryItemLongClickVibrator()) {
+                        Vibrator vibrator = (Vibrator) getActivity().getSystemService(Service.VIBRATOR_SERVICE);
+                        vibrator.vibrate(50);
+                    }
+                    if (mGalleryAdapter.getItemCount() != selectorConfig.maxSelectNum) {
+                        mItemTouchHelper.startDrag(holder);
+                        return;
+                    }
+                    if (holder.getLayoutPosition() != mGalleryAdapter.getItemCount() - 1) {
+                        mItemTouchHelper.startDrag(holder);
+                    }
+                }
+            });
         }
     }
 }

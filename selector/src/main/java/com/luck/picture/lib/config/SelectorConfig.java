@@ -2,6 +2,7 @@ package com.luck.picture.lib.config;
 
 import android.content.pm.ActivityInfo;
 
+import com.luck.picture.lib.R;
 import com.luck.picture.lib.basic.IBridgeLoaderFactory;
 import com.luck.picture.lib.basic.IBridgeViewLifecycle;
 import com.luck.picture.lib.basic.InterpolatorFactory;
@@ -16,25 +17,7 @@ import com.luck.picture.lib.engine.UriToFileTransformEngine;
 import com.luck.picture.lib.engine.VideoPlayerEngine;
 import com.luck.picture.lib.entity.LocalMedia;
 import com.luck.picture.lib.entity.LocalMediaFolder;
-import com.luck.picture.lib.interfaces.OnBitmapWatermarkEventListener;
-import com.luck.picture.lib.interfaces.OnCameraInterceptListener;
-import com.luck.picture.lib.interfaces.OnCustomLoadingListener;
-import com.luck.picture.lib.interfaces.OnExternalPreviewEventListener;
-import com.luck.picture.lib.interfaces.OnGridItemSelectAnimListener;
-import com.luck.picture.lib.interfaces.OnInjectActivityPreviewListener;
-import com.luck.picture.lib.interfaces.OnInjectLayoutResourceListener;
-import com.luck.picture.lib.interfaces.OnMediaEditInterceptListener;
-import com.luck.picture.lib.interfaces.OnPermissionDeniedListener;
-import com.luck.picture.lib.interfaces.OnPermissionDescriptionListener;
-import com.luck.picture.lib.interfaces.OnPermissionsInterceptListener;
-import com.luck.picture.lib.interfaces.OnPreviewInterceptListener;
-import com.luck.picture.lib.interfaces.OnQueryFilterListener;
-import com.luck.picture.lib.interfaces.OnRecordAudioInterceptListener;
-import com.luck.picture.lib.interfaces.OnResultCallbackListener;
-import com.luck.picture.lib.interfaces.OnSelectAnimListener;
-import com.luck.picture.lib.interfaces.OnSelectFilterListener;
-import com.luck.picture.lib.interfaces.OnSelectLimitTipsListener;
-import com.luck.picture.lib.interfaces.OnVideoThumbnailEventListener;
+import com.luck.picture.lib.interfaces.*;
 import com.luck.picture.lib.language.LanguageConfig;
 import com.luck.picture.lib.magical.BuildRecycleItemViewParams;
 import com.luck.picture.lib.style.PictureSelectorStyle;
@@ -52,6 +35,22 @@ import java.util.List;
  */
 
 public final class SelectorConfig {
+    /**
+     * selected result
+     */
+    public final ArrayList<LocalMedia> selectedResult = new ArrayList<>();
+    /**
+     * selected preview result
+     */
+    public final ArrayList<LocalMedia> selectedPreviewResult = new ArrayList<>();
+    /**
+     * all album data source
+     */
+    public final ArrayList<LocalMediaFolder> albumDataSource = new ArrayList<>();
+    /**
+     * all data source
+     */
+    public final ArrayList<LocalMedia> dataSource = new ArrayList<>();
     public int chooseMode;
     public boolean isOnlyCamera;
     public boolean isDirectReturnSingle;
@@ -90,6 +89,7 @@ public final class SelectorConfig {
     public boolean isEnablePreviewVideo;
     public boolean isEnablePreviewAudio;
     public boolean isPreviewFullScreenMode;
+    public boolean isPreviewSelectReturn; // rjq+：预览选中后返回相册，反选不返回相册
     public boolean isPreviewZoomEffect;
     public boolean isOpenClickSound;
     public boolean isEmptyResultReturn;
@@ -110,10 +110,14 @@ public final class SelectorConfig {
     public String cameraPath;
     public String sortOrder;
     public String defaultAlbumName;
+    public String defaultVideoFolderName;
     public int pageSize;
     public boolean isPageStrategy;
     public boolean isFilterInvalidFile;
     public boolean isMaxSelectEnabledMask;
+    public int defaultColorFilterColor;
+    public int selectColorFilterColor;
+    public int maxSelectColorFilterColor;
     public int animationMode;
     public boolean isAutomaticTitleRecyclerTop;
     public boolean isQuickCapture;
@@ -145,6 +149,46 @@ public final class SelectorConfig {
     public boolean isUseSystemVideoPlayer;
     public boolean isNewKeyBackMode;
     public PictureSelectorStyle selectorStyle;
+    /**
+     * Callback listening
+     */
+    public ImageEngine imageEngine;
+    public CompressEngine compressEngine;
+    public CompressFileEngine compressFileEngine;
+    public CropEngine cropEngine;
+    public CropFileEngine cropFileEngine;
+    public SandboxFileEngine sandboxFileEngine;
+    public UriToFileTransformEngine uriToFileTransformEngine;
+    public ExtendLoaderEngine loaderDataEngine;
+    public VideoPlayerEngine videoPlayerEngine;
+    public IBridgeViewLifecycle viewLifecycle;
+    public IBridgeLoaderFactory loaderFactory;
+    public InterpolatorFactory interpolatorFactory;
+    public OnCameraInterceptListener onCameraInterceptListener;
+    public OnOpenCameraClickInterceptorListener onOpenCameraClickInterceptorListener;
+    public OnBottomNavBarSelectedChangeListener onBottomNavBarSelectedChangeListener;
+    public OnSelectLimitTipsListener onSelectLimitTipsListener;
+    public OnResultCallbackListener<LocalMedia> onResultCallListener;
+    public OnExternalPreviewEventListener onExternalPreviewEventListener;
+    public OnInjectActivityPreviewListener onInjectActivityPreviewListener;
+    public OnMediaEditInterceptListener onEditMediaEventListener;
+    public OnPermissionsInterceptListener onPermissionsEventListener;
+    public OnInjectLayoutResourceListener onLayoutResourceListener;
+    public OnPreviewInterceptListener onPreviewInterceptListener;
+    public OnSelectFilterListener onSelectFilterListener;
+    public OnPermissionDescriptionListener onPermissionDescriptionListener;
+    public OnPermissionDeniedListener onPermissionDeniedListener;
+    public OnRecordAudioInterceptListener onRecordAudioListener;
+    public OnQueryFilterListener onQueryFilterListener;
+    public OnBitmapWatermarkEventListener onBitmapWatermarkListener;
+    public OnVideoThumbnailEventListener onVideoThumbnailEventListener;
+    public OnGridItemSelectAnimListener onItemSelectAnimListener;
+    public OnSelectAnimListener onSelectAnimListener;
+    public OnCustomLoadingListener onCustomLoadingListener;
+    /**
+     * selected current album folder
+     */
+    public LocalMediaFolder currentLocalMediaFolder;
 
     public SelectorConfig() {
         initDefaultValue();
@@ -208,6 +252,9 @@ public final class SelectorConfig {
         isPageStrategy = true;
         isFilterInvalidFile = false;
         isMaxSelectEnabledMask = false;
+        defaultColorFilterColor = R.color.ps_color_20;
+        maxSelectColorFilterColor = R.color.ps_color_half_white;
+        selectColorFilterColor = R.color.ps_color_80;
         animationMode = -1;
         isAutomaticTitleRecyclerTop = true;
         isQuickCapture = true;
@@ -234,6 +281,7 @@ public final class SelectorConfig {
         sortOrder = "";
         isSelectZoomAnim = true;
         defaultAlbumName = "";
+        defaultVideoFolderName = "";
         isAutoVideoPlay = false;
         isLoopAutoPlay = false;
         isFilterSizeDuration = true;
@@ -245,51 +293,6 @@ public final class SelectorConfig {
         isNewKeyBackMode = true;
         isUseSystemVideoPlayer = false;
     }
-
-    /**
-     * Callback listening
-     */
-    public ImageEngine imageEngine;
-    public CompressEngine compressEngine;
-    public CompressFileEngine compressFileEngine;
-    public CropEngine cropEngine;
-    public CropFileEngine cropFileEngine;
-    public SandboxFileEngine sandboxFileEngine;
-    public UriToFileTransformEngine uriToFileTransformEngine;
-    public ExtendLoaderEngine loaderDataEngine;
-    public VideoPlayerEngine videoPlayerEngine;
-    public IBridgeViewLifecycle viewLifecycle;
-    public IBridgeLoaderFactory loaderFactory;
-    public InterpolatorFactory interpolatorFactory;
-    public OnCameraInterceptListener onCameraInterceptListener;
-    public OnSelectLimitTipsListener onSelectLimitTipsListener;
-    public OnResultCallbackListener<LocalMedia> onResultCallListener;
-    public OnExternalPreviewEventListener onExternalPreviewEventListener;
-    public OnInjectActivityPreviewListener onInjectActivityPreviewListener;
-    public OnMediaEditInterceptListener onEditMediaEventListener;
-    public OnPermissionsInterceptListener onPermissionsEventListener;
-    public OnInjectLayoutResourceListener onLayoutResourceListener;
-    public OnPreviewInterceptListener onPreviewInterceptListener;
-    public OnSelectFilterListener onSelectFilterListener;
-    public OnPermissionDescriptionListener onPermissionDescriptionListener;
-    public OnPermissionDeniedListener onPermissionDeniedListener;
-    public OnRecordAudioInterceptListener onRecordAudioListener;
-    public OnQueryFilterListener onQueryFilterListener;
-    public OnBitmapWatermarkEventListener onBitmapWatermarkListener;
-    public OnVideoThumbnailEventListener onVideoThumbnailEventListener;
-    public OnGridItemSelectAnimListener onItemSelectAnimListener;
-    public OnSelectAnimListener onSelectAnimListener;
-    public OnCustomLoadingListener onCustomLoadingListener;
-
-    /**
-     * selected current album folder
-     */
-    public LocalMediaFolder currentLocalMediaFolder;
-
-    /**
-     * selected result
-     */
-    public final ArrayList<LocalMedia> selectedResult = new ArrayList<>();
 
     public synchronized ArrayList<LocalMedia> getSelectedResult() {
         return selectedResult;
@@ -311,11 +314,6 @@ public final class SelectorConfig {
         return selectedResult.size() > 0 ? selectedResult.get(0).getMimeType() : "";
     }
 
-    /**
-     * selected preview result
-     */
-    public final ArrayList<LocalMedia> selectedPreviewResult = new ArrayList<>();
-
     public void addSelectedPreviewResult(ArrayList<LocalMedia> list) {
         if (list != null) {
             selectedPreviewResult.clear();
@@ -323,22 +321,12 @@ public final class SelectorConfig {
         }
     }
 
-    /**
-     * all album data source
-     */
-    public final ArrayList<LocalMediaFolder> albumDataSource = new ArrayList<>();
-
     public void addAlbumDataSource(List<LocalMediaFolder> list) {
         if (list != null) {
             albumDataSource.clear();
             albumDataSource.addAll(list);
         }
     }
-
-    /**
-     * all data source
-     */
-    public final ArrayList<LocalMedia> dataSource = new ArrayList<>();
 
     public void addDataSource(ArrayList<LocalMedia> list) {
         if (list != null) {

@@ -4,10 +4,8 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.view.View;
 import android.view.ViewGroup;
-
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
-
 import com.luck.picture.lib.R;
 import com.luck.picture.lib.adapter.holder.BaseRecyclerMediaHolder;
 import com.luck.picture.lib.config.InjectResourceSource;
@@ -39,23 +37,19 @@ public class PictureImageGridAdapter extends RecyclerView.Adapter<BaseRecyclerMe
      * 音频
      */
     public final static int ADAPTER_TYPE_AUDIO = 4;
-
-    private boolean isDisplayCamera;
-
-    private ArrayList<LocalMedia> mData = new ArrayList<>();
-
     private final SelectorConfig mConfig;
-
     private final Context mContext;
-
-
-    public void notifyItemPositionChanged(int position) {
-        this.notifyItemChanged(position);
-    }
+    private boolean isDisplayCamera;
+    private ArrayList<LocalMedia> mData = new ArrayList<>();
+    private OnItemClickListener listener;
 
     public PictureImageGridAdapter(Context context, SelectorConfig mConfig) {
         this.mConfig = mConfig;
         this.mContext = context;
+    }
+
+    public void notifyItemPositionChanged(int position) {
+        this.notifyItemChanged(position);
     }
 
     @SuppressLint("NotifyDataSetChanged")
@@ -146,14 +140,10 @@ public class PictureImageGridAdapter extends RecyclerView.Adapter<BaseRecyclerMe
         }
     }
 
-
     @Override
     public int getItemCount() {
         return isDisplayCamera ? mData.size() + 1 : mData.size();
     }
-
-
-    private OnItemClickListener listener;
 
     public void setOnItemClickListener(OnItemClickListener listener) {
         this.listener = listener;

@@ -117,6 +117,32 @@ public class BottomNavBarStyle {
      */
     private boolean isCompleteCountTips = true;
 
+    // rjq+：是否显示BottomNavBar左边预览按钮
+    private boolean isShowBottomPreviewBtn = true;
+
+    // rjq+：是否选中后再显示bottomNavBar
+    private boolean isSelectedShowBottomNavBar;
+    // rjq+：isSelectedShowBottomNavBar=true时是否从底向上出现，如果gallery也显示则其也从底向上出现。isSelectedShowBottomNavBar=false时即使该变量为true，显示/隐藏gallery时也不会有动画
+    // preview页暂不支持该动画
+    private boolean isSelectedShowBottomNavBarAnim;
+    // isSelectedShowBottomNavBarAnim=true时从底向上动画时长
+    private int selectedShowBottomNavBarAnimDuration = 150;
+
+    // rjq+：是否展示预览页BottomNavBar
+    private boolean isShowPreviewBottomNavBar = true;
+
+    // rjq+：是否显示BottomNavBar左边提醒文字
+    private boolean isShowBottomNotice;
+
+    // rjq+：预览页是否显示BottomNavBar左边提醒文字
+    private boolean isShowPreviewBottomNotice;
+    // rjq+：BottomNavBar左边提醒文字颜色
+    private int bottomNoticeTextColor;
+    // rjq+：BottomNavBar左边提醒文字大小
+    private int bottomNoticeTextSize;
+    // rjq+：BottomNavBar左边提醒文本
+    private String bottomNoticeText;
+
 
     public BottomNavBarStyle() {
     }
@@ -153,12 +179,12 @@ public class BottomNavBarStyle {
         this.bottomPreviewNormalText = bottomPreviewNormalText;
     }
 
-    public int getBottomPreviewNormalTextResId() {
-        return bottomPreviewNormalTextResId;
-    }
-
     public void setBottomPreviewNormalText(int resId) {
         this.bottomPreviewNormalTextResId = resId;
+    }
+
+    public int getBottomPreviewNormalTextResId() {
+        return bottomPreviewNormalTextResId;
     }
 
     public int getBottomPreviewNormalTextSize() {
@@ -185,12 +211,12 @@ public class BottomNavBarStyle {
         this.bottomPreviewSelectText = bottomPreviewSelectText;
     }
 
-    public int getBottomPreviewSelectTextResId() {
-        return bottomPreviewSelectTextResId;
-    }
-
     public void setBottomPreviewSelectText(int resId) {
         this.bottomPreviewSelectTextResId = resId;
+    }
+
+    public int getBottomPreviewSelectTextResId() {
+        return bottomPreviewSelectTextResId;
     }
 
     public int getBottomPreviewSelectTextColor() {
@@ -209,12 +235,12 @@ public class BottomNavBarStyle {
         this.bottomEditorText = bottomEditorText;
     }
 
-    public int getBottomEditorTextResId() {
-        return bottomEditorTextResId;
-    }
-
     public void setBottomEditorText(int resId) {
         this.bottomEditorTextResId = resId;
+    }
+
+    public int getBottomEditorTextResId() {
+        return bottomEditorTextResId;
     }
 
     public int getBottomEditorTextSize() {
@@ -249,12 +275,12 @@ public class BottomNavBarStyle {
         this.bottomOriginalText = bottomOriginalText;
     }
 
-    public int getBottomOriginalTextResId() {
-        return bottomOriginalTextResId;
-    }
-
     public void setBottomOriginalText(int resId) {
         this.bottomOriginalTextResId = resId;
+    }
+
+    public int getBottomOriginalTextResId() {
+        return bottomOriginalTextResId;
     }
 
     public int getBottomOriginalTextSize() {
@@ -303,5 +329,85 @@ public class BottomNavBarStyle {
 
     public void setCompleteCountTips(boolean completeCountTips) {
         isCompleteCountTips = completeCountTips;
+    }
+
+    public boolean isShowBottomPreviewBtn() {
+        return isShowBottomPreviewBtn;
+    }
+
+    public void setShowBottomPreviewBtn(boolean show) {
+        isShowBottomPreviewBtn = show;
+    }
+
+    public boolean isSelectedShowBottomNavBar() {
+        return isSelectedShowBottomNavBar;
+    }
+
+    public void setSelectedShowBottomNavBar(boolean show) {
+        isSelectedShowBottomNavBar = show;
+    }
+
+    public boolean isSelectedShowBottomNavBarAnim() {
+        return isSelectedShowBottomNavBarAnim;
+    }
+
+    public void setSelectedShowBottomNavBarAnim(boolean show) {
+        isSelectedShowBottomNavBarAnim = show;
+    }
+
+    public int getSelectedShowBottomNavBarAnimDuration() {
+        return selectedShowBottomNavBarAnimDuration;
+    }
+
+    public void setSelectedShowBottomNavBarAnimDuration(int duration) {
+        selectedShowBottomNavBarAnimDuration = duration;
+    }
+
+    public boolean isShowPreviewBottomNavBar() {
+        return isShowPreviewBottomNavBar;
+    }
+
+    public void setShowPreviewBottomNavBar(boolean show) {
+        isShowPreviewBottomNavBar = show;
+    }
+
+    public boolean isShowBottomNotice() {
+        return isShowBottomNotice;
+    }
+
+    public void setShowBottomNotice(boolean show) {
+        isShowBottomNotice = show;
+    }
+
+    public boolean isShowPreviewBottomNotice() {
+        return isShowPreviewBottomNotice;
+    }
+
+    public void setShowPreviewBottomNotice(boolean show) {
+        isShowPreviewBottomNotice = show;
+    }
+
+    public int getBottomNoticeTextColor() {
+        return bottomNoticeTextColor;
+    }
+
+    public void setBottomNoticeTextColor(int color) {
+        bottomNoticeTextColor = color;
+    }
+
+    public int getBottomNoticeTextSize() {
+        return bottomNoticeTextSize;
+    }
+
+    public void setBottomNoticeTextSize(int size) {
+        bottomNoticeTextSize = size;
+    }
+
+    public String getBottomNoticeText() {
+        return bottomNoticeText;
+    }
+
+    public void setBottomNoticeText(String str) {
+        bottomNoticeText = str;
     }
 }

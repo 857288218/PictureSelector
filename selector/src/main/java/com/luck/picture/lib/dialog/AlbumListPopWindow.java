@@ -22,6 +22,7 @@ import com.luck.picture.lib.entity.LocalMediaFolder;
 import com.luck.picture.lib.interfaces.OnAlbumItemClickListener;
 import com.luck.picture.lib.utils.DensityUtil;
 import com.luck.picture.lib.utils.SdkVersionUtils;
+import com.luck.picture.lib.utils.StyleUtils;
 
 import java.util.List;
 
@@ -39,6 +40,7 @@ public class AlbumListPopWindow extends PopupWindow {
     private int windowMaxHeight;
     private PictureAlbumAdapter mAdapter;
     private SelectorConfig selectorConfig;
+    private OnPopupWindowStatusListener windowStatusListener;
 
     public AlbumListPopWindow(Context context, SelectorConfig config) {
         this.mContext = context;
@@ -53,13 +55,29 @@ public class AlbumListPopWindow extends PopupWindow {
         initViews();
     }
 
+    public static AlbumListPopWindow buildPopWindow(Context context, SelectorConfig config) {
+        return new AlbumListPopWindow(context, config);
+    }
+
     private void initViews() {
-        windowMaxHeight = (int) (DensityUtil.getScreenHeight(mContext) * 0.6);
+        float heightPercent = selectorConfig.selectorStyle.getAlbumWindowStyle().getAlbumHeightPercent();
+        windowMaxHeight = (int) (DensityUtil.getScreenHeight(mContext) * heightPercent);
         mRecyclerView = getContentView().findViewById(R.id.folder_list);
         windMask = getContentView().findViewById(R.id.rootViewBg);
         mRecyclerView.setLayoutManager(new WrapContentLinearLayoutManager(mContext));
         mAdapter = new PictureAlbumAdapter(selectorConfig);
         mRecyclerView.setAdapter(mAdapter);
+        View roundGroup = getContentView().findViewById(R.id.round_group);
+        int albumBackgroundColor = selectorConfig.selectorStyle.getAlbumWindowStyle().getAlbumBackgroundColor();
+        if (StyleUtils.checkStyleValidity(albumBackgroundColor)) {
+            roundGroup.setBackgroundColor(albumBackgroundColor);
+        }
+        View topDivider = getContentView().findViewById(R.id.divider);
+        int topDividerColor = selectorConfig.selectorStyle.getAlbumWindowStyle().getAlbumTopDividerColor();
+        if (StyleUtils.checkStyleValidity(topDividerColor)) {
+            topDivider.setBackgroundColor(topDividerColor);
+        }
+        topDivider.setVisibility(selectorConfig.selectorStyle.getAlbumWindowStyle().getAlbumShowTopDivider() ? View.VISIBLE : View.GONE);
         windMask.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -81,7 +99,8 @@ public class AlbumListPopWindow extends PopupWindow {
         mAdapter.bindAlbumData(list);
         mAdapter.notifyDataSetChanged();
         ViewGroup.LayoutParams lp = mRecyclerView.getLayoutParams();
-        lp.height = list.size() > ALBUM_MAX_COUNT ? windowMaxHeight : ViewGroup.LayoutParams.WRAP_CONTENT;
+//        lp.height = list.size() > ALBUM_MAX_COUNT ? windowMaxHeight : ViewGroup.LayoutParams.WRAP_CONTENT;
+        lp.height = windowMaxHeight;
     }
 
     public List<LocalMediaFolder> getAlbumList() {
@@ -108,10 +127,6 @@ public class AlbumListPopWindow extends PopupWindow {
      */
     public void setOnIBridgeAlbumWidget(OnAlbumItemClickListener listener) {
         mAdapter.setOnIBridgeAlbumWidget(listener);
-    }
-
-    public static AlbumListPopWindow buildPopWindow(Context context, SelectorConfig config) {
-        return new AlbumListPopWindow(context, config);
     }
 
     @Override
@@ -174,7 +189,6 @@ public class AlbumListPopWindow extends PopupWindow {
         });
     }
 
-
     /**
      * AlbumListPopWindow 弹出与消失状态监听
      *
@@ -183,8 +197,6 @@ public class AlbumListPopWindow extends PopupWindow {
     public void setOnPopupWindowStatusListener(OnPopupWindowStatusListener listener) {
         this.windowStatusListener = listener;
     }
-
-    private OnPopupWindowStatusListener windowStatusListener;
 
     public interface OnPopupWindowStatusListener {
 

@@ -29,6 +29,9 @@ public class AudioViewHolder extends BaseRecyclerMediaHolder {
         if (StyleUtils.checkStyleValidity(drawableLeft)) {
             tvDuration.setCompoundDrawablesRelativeWithIntrinsicBounds(drawableLeft, 0, 0, 0);
         }
+        if (!adapterStyle.isShowAdapterDurationDrawableLeft()) {
+            tvDuration.setCompoundDrawablesRelativeWithIntrinsicBounds(0, 0, 0, 0);
+        }
         int textSize = adapterStyle.getAdapterDurationTextSize();
         if (StyleUtils.checkSizeValidity(textSize)) {
             tvDuration.setTextSize(textSize);

@@ -39,10 +39,7 @@ public class TitleBar extends RelativeLayout implements View.OnClickListener {
     protected SelectorConfig config;
     protected View viewTopStatusBar;
     protected RelativeLayout titleBarLayout;
-
-    public TextView getTitleCancelView() {
-        return tvCancel;
-    }
+    protected OnTitleBarListener titleBarListener;
 
     public TitleBar(Context context) {
         super(context);
@@ -57,6 +54,10 @@ public class TitleBar extends RelativeLayout implements View.OnClickListener {
     public TitleBar(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         init();
+    }
+
+    public TextView getTitleCancelView() {
+        return tvCancel;
     }
 
     protected void init() {
@@ -140,7 +141,7 @@ public class TitleBar extends RelativeLayout implements View.OnClickListener {
         if (StyleUtils.checkSizeValidity(titleBarHeight)) {
             titleBarLayout.getLayoutParams().height = titleBarHeight;
         } else {
-            titleBarLayout.getLayoutParams().height = DensityUtil.dip2px(getContext(), 48);
+            titleBarLayout.getLayoutParams().height = DensityUtil.dip2px(getContext(), 44);
         }
 
         if (titleBarLine != null) {
@@ -162,6 +163,10 @@ public class TitleBar extends RelativeLayout implements View.OnClickListener {
         if (StyleUtils.checkStyleValidity(backResId)) {
             ivLeftBack.setImageResource(backResId);
         }
+        int backMarginStart = titleBarStyle.getTitleLeftBackMarginStart();
+        ((RelativeLayout.LayoutParams)(ivLeftBack.getLayoutParams())).setMarginStart(backMarginStart);
+        int backPadding = titleBarStyle.getTitleLeftBackPadding();
+        ivLeftBack.setPadding(backPadding, backPadding, backPadding, backPadding);
         String titleDefaultText = StyleUtils.checkStyleValidity(titleBarStyle.getTitleDefaultTextResId())
                 ? getContext().getString(titleBarStyle.getTitleDefaultTextResId()) : titleBarStyle.getTitleDefaultText();
         if (StyleUtils.checkTextValidity(titleDefaultText)) {
@@ -236,8 +241,6 @@ public class TitleBar extends RelativeLayout implements View.OnClickListener {
             }
         }
     }
-
-    protected OnTitleBarListener titleBarListener;
 
     /**
      * TitleBar的功能事件回调

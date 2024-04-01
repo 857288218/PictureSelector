@@ -2,7 +2,7 @@
 <merge xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
-
+    
     <com.luck.picture.lib.widget.MediumBoldTextView
         android:id="@+id/ps_tv_preview"
         android:layout_width="wrap_content"
@@ -17,7 +17,7 @@
         android:text="@string/ps_preview"
         android:textColor="@color/ps_color_9b"
         android:textSize="14sp" />
-
+    
     <com.luck.picture.lib.widget.MediumBoldTextView
         android:id="@+id/ps_tv_editor"
         android:layout_width="wrap_content"
@@ -32,7 +32,7 @@
         android:textColor="@color/ps_color_white"
         android:textSize="14sp"
         android:visibility="gone" />
-
+    
     <CheckBox
         android:id="@+id/cb_original"
         android:layout_width="wrap_content"
@@ -47,6 +47,19 @@
         android:paddingBottom="10dp"
         android:text="@string/ps_default_original_image"
         android:textColor="@color/ps_color_white"
+        android:textSize="14sp"
+        android:visibility="gone" />
+    
+    <com.luck.picture.lib.widget.MediumBoldTextView
+        android:id="@+id/ps_tv_notice"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:gravity="center"
+        android:paddingLeft="24dp"
+        android:paddingTop="10dp"
+        android:paddingBottom="10dp"
+        android:textColor="@color/ps_color_53575e"
         android:textSize="14sp"
         android:visibility="gone" />
 

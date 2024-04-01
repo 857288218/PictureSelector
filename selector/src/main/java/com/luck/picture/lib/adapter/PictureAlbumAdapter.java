@@ -7,10 +7,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
-
 import androidx.annotation.NonNull;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.RecyclerView;
-
 import com.luck.picture.lib.R;
 import com.luck.picture.lib.config.InjectResourceSource;
 import com.luck.picture.lib.config.PictureMimeType;
@@ -29,8 +28,9 @@ import java.util.List;
  * @describe：PictureAlbumDirectoryAdapter
  */
 public class PictureAlbumAdapter extends RecyclerView.Adapter<PictureAlbumAdapter.ViewHolder> {
-    private List<LocalMediaFolder> albumList;
     private final SelectorConfig selectorConfig;
+    private List<LocalMediaFolder> albumList;
+    private OnAlbumItemClickListener onAlbumItemClickListener;
 
     public PictureAlbumAdapter(SelectorConfig config) {
         this.selectorConfig = config;
@@ -55,11 +55,14 @@ public class PictureAlbumAdapter extends RecyclerView.Adapter<PictureAlbumAdapte
     @SuppressLint("NotifyDataSetChanged")
     @Override
     public void onBindViewHolder(final ViewHolder holder, int position) {
+        PictureSelectorStyle selectorStyle = selectorConfig.selectorStyle;
+        AlbumWindowStyle albumWindowStyle = selectorStyle.getAlbumWindowStyle();
+        Context context = holder.itemView.getContext();
         LocalMediaFolder folder = albumList.get(position);
         String name = folder.getFolderName();
         int imageNum = folder.getFolderTotalNum();
         String imagePath = folder.getFirstImagePath();
-        holder.tvSelectTag.setVisibility(folder.isSelectTag() ? View.VISIBLE : View.INVISIBLE);
+        holder.tvSelectTag.setVisibility(folder.isSelectTag() && albumWindowStyle.getAlbumAdapterItemShowSelectTag() ? View.VISIBLE : View.INVISIBLE);
         LocalMediaFolder currentLocalMediaFolder = selectorConfig.currentLocalMediaFolder;
         holder.itemView.setSelected(currentLocalMediaFolder != null
                 && folder.getBucketId() == currentLocalMediaFolder.getBucketId());
@@ -72,8 +75,14 @@ public class PictureAlbumAdapter extends RecyclerView.Adapter<PictureAlbumAdapte
                         imagePath, holder.ivFirstImage);
             }
         }
-        Context context = holder.itemView.getContext();
-        holder.tvFolderName.setText(context.getString(R.string.ps_camera_roll_num, name, imageNum));
+        if (albumWindowStyle.getAlbumAdapterItemShowSubtitle()) {
+            holder.tvFolderCount.setVisibility(View.VISIBLE);
+            holder.tvFolderCount.setText(imageNum + "");
+            holder.tvFolderName.setText(name);
+        } else {
+            holder.tvFolderCount.setVisibility(View.GONE);
+            holder.tvFolderName.setText(context.getString(R.string.ps_camera_roll_num, name, imageNum));
+        }
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -90,20 +99,34 @@ public class PictureAlbumAdapter extends RecyclerView.Adapter<PictureAlbumAdapte
         return albumList.size();
     }
 
+    /**
+     * 专辑列表桥接类
+     *
+     * @param listener
+     */
+    public void setOnIBridgeAlbumWidget(OnAlbumItemClickListener listener) {
+        this.onAlbumItemClickListener = listener;
+    }
+
     public class ViewHolder extends RecyclerView.ViewHolder {
         ImageView ivFirstImage;
-        TextView tvFolderName, tvSelectTag;
+        TextView tvFolderName, tvSelectTag, tvFolderCount;
 
         public ViewHolder(View itemView) {
             super(itemView);
             ivFirstImage = itemView.findViewById(R.id.first_image);
             tvFolderName = itemView.findViewById(R.id.tv_folder_name);
+            tvFolderCount = itemView.findViewById(R.id.tv_folder_count);
             tvSelectTag = itemView.findViewById(R.id.tv_select_tag);
             PictureSelectorStyle selectorStyle = selectorConfig.selectorStyle;
             AlbumWindowStyle albumWindowStyle = selectorStyle.getAlbumWindowStyle();
             int itemBackground = albumWindowStyle.getAlbumAdapterItemBackground();
             if (itemBackground != 0) {
                 itemView.setBackgroundResource(itemBackground);
+            }
+            int itemBackgroundColor = albumWindowStyle.getAlbumAdapterItemBackgroundColor();
+            if (itemBackgroundColor != 0) {
+                itemView.setBackgroundColor(itemBackgroundColor);
             }
             int itemSelectStyle = albumWindowStyle.getAlbumAdapterItemSelectStyle();
             if (itemSelectStyle != 0) {
@@ -113,22 +136,34 @@ public class PictureAlbumAdapter extends RecyclerView.Adapter<PictureAlbumAdapte
             if (titleColor != 0) {
                 tvFolderName.setTextColor(titleColor);
             }
+            int subTitleColor = albumWindowStyle.getAlbumAdapterItemSubtitleColor();
+            if (subTitleColor != 0) {
+                tvFolderCount.setTextColor(subTitleColor);
+            }
             int titleSize = albumWindowStyle.getAlbumAdapterItemTitleSize();
             if (titleSize > 0) {
                 tvFolderName.setTextSize(titleSize);
             }
+            int subtitleSize = albumWindowStyle.getAlbumAdapterItemSubtitleSize();
+            if (subtitleSize > 0) {
+                tvFolderCount.setTextSize(subtitleSize);
+            }
+            int coverSize = albumWindowStyle.getAlbumAdapterItemCoverSize();
+            if (coverSize > 0) {
+                ConstraintLayout.LayoutParams layoutParams = new ConstraintLayout.LayoutParams(coverSize, coverSize);
+                ivFirstImage.setLayoutParams(layoutParams);
+            }
+            int[] padding = albumWindowStyle.getAlbumAdapterItemPadding();
+            if (padding != null && padding.length == 4) {
+                itemView.setPadding(padding[0], padding[1], padding[2], padding[3]);
+            }
+            int titleMarginStart = albumWindowStyle.getAlbumAdapterItemTitleMarginStart();
+            if (titleMarginStart > 0) {
+                ViewGroup.MarginLayoutParams layoutParams = (ViewGroup.MarginLayoutParams) tvFolderName.getLayoutParams();
+                layoutParams.setMarginStart(titleMarginStart);
+                tvFolderName.setLayoutParams(layoutParams);
+            }
         }
-    }
-
-    private OnAlbumItemClickListener onAlbumItemClickListener;
-
-    /**
-     * 专辑列表桥接类
-     *
-     * @param listener
-     */
-    public void setOnIBridgeAlbumWidget(OnAlbumItemClickListener listener) {
-        this.onAlbumItemClickListener = listener;
     }
 
 }

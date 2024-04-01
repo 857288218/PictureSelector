@@ -5,14 +5,14 @@ import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.view.Gravity;
 import android.view.LayoutInflater;
+import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-
 import androidx.annotation.Nullable;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.content.ContextCompat;
-
 import com.luck.picture.lib.R;
 import com.luck.picture.lib.config.SelectorConfig;
 import com.luck.picture.lib.config.SelectorProviders;
@@ -27,7 +27,7 @@ import com.luck.picture.lib.utils.ValueOf;
  * @date：2021/11/21 11:28 下午
  * @describe：CompleteSelectView
  */
-public class CompleteSelectView extends LinearLayout {
+public class CompleteSelectView extends ConstraintLayout {
     private TextView tvSelectNum;
     private TextView tvComplete;
     private Animation numberChangeAnimation;
@@ -50,10 +50,8 @@ public class CompleteSelectView extends LinearLayout {
 
     private void init() {
         inflateLayout();
-        setOrientation(LinearLayout.HORIZONTAL);
         tvSelectNum = findViewById(R.id.ps_tv_select_num);
         tvComplete = findViewById(R.id.ps_tv_complete);
-        setGravity(Gravity.CENTER_VERTICAL);
         numberChangeAnimation = AnimationUtils.loadAnimation(getContext(), R.anim.ps_anim_modal_in);
         config = SelectorProviders.getInstance().getSelectorConfig();
     }
@@ -70,6 +68,9 @@ public class CompleteSelectView extends LinearLayout {
         SelectMainStyle selectMainStyle = selectorStyle.getSelectMainStyle();
         if (StyleUtils.checkStyleValidity(selectMainStyle.getSelectNormalBackgroundResources())) {
             setBackgroundResource(selectMainStyle.getSelectNormalBackgroundResources());
+        }
+        if (StyleUtils.checkStyleValidity(selectMainStyle.getSelectCompleteBtnNormalBackgroundResources())) {
+            tvComplete.setBackgroundResource(selectMainStyle.getSelectCompleteBtnNormalBackgroundResources());
         }
         String selectNormalText = StyleUtils.checkStyleValidity(selectMainStyle.getSelectNormalTextResId())
                 ? getContext().getString(selectMainStyle.getSelectNormalTextResId()) : selectMainStyle.getSelectNormalText();
@@ -120,6 +121,15 @@ public class CompleteSelectView extends LinearLayout {
         PictureSelectorStyle selectorStyle = config.selectorStyle;
         SelectMainStyle selectMainStyle = selectorStyle.getSelectMainStyle();
         if (config.getSelectCount() > 0) {
+            int[] tvCompleteSize = selectMainStyle.getSelectCompleteBtnSize();
+            if (tvCompleteSize.length == 2 && tvCompleteSize[0] > 0 && tvCompleteSize[1] > 0) {
+                tvComplete.getLayoutParams().width = tvCompleteSize[0];
+                tvComplete.getLayoutParams().height = tvCompleteSize[1];
+            } else {
+                tvComplete.getLayoutParams().width = ViewGroup.LayoutParams.WRAP_CONTENT;
+                tvComplete.getLayoutParams().height = ViewGroup.LayoutParams.WRAP_CONTENT;
+            }
+
             setEnabled(true);
             int selectBackground = selectMainStyle.getSelectBackgroundResources();
             if (StyleUtils.checkStyleValidity(selectBackground)) {
@@ -127,6 +137,9 @@ public class CompleteSelectView extends LinearLayout {
             } else {
                 setBackgroundResource(R.drawable.ps_ic_trans_1px);
             }
+            int selectCompleteBtnBackground = selectMainStyle.getSelectCompleteBtnBackgroundResources();
+            tvComplete.setBackgroundResource(selectCompleteBtnBackground);
+
             String selectText = StyleUtils.checkStyleValidity(selectMainStyle.getSelectTextResId())
                     ? getContext().getString(selectMainStyle.getSelectTextResId()) : selectMainStyle.getSelectText();
             if (StyleUtils.checkTextValidity(selectText)) {
@@ -177,11 +190,22 @@ public class CompleteSelectView extends LinearLayout {
                 } else {
                     setBackgroundResource(R.drawable.ps_ic_trans_1px);
                 }
+                int selectCompleteBtnBackground = selectMainStyle.getSelectCompleteBtnBackgroundResources();
+                tvComplete.setBackgroundResource(selectCompleteBtnBackground);
+
                 int selectTextColor = selectMainStyle.getSelectTextColor();
                 if (StyleUtils.checkStyleValidity(selectTextColor)) {
                     tvComplete.setTextColor(selectTextColor);
                 } else {
                     tvComplete.setTextColor(ContextCompat.getColor(getContext(), R.color.ps_color_9b));
+                }
+                int[] tvCompleteSelectSize = selectMainStyle.getSelectCompleteBtnSize();
+                if (tvCompleteSelectSize.length == 2 && tvCompleteSelectSize[0] > 0 && tvCompleteSelectSize[1] > 0) {
+                    tvComplete.getLayoutParams().width = tvCompleteSelectSize[0];
+                    tvComplete.getLayoutParams().height = tvCompleteSelectSize[1];
+                } else {
+                    tvComplete.getLayoutParams().width = ViewGroup.LayoutParams.WRAP_CONTENT;
+                    tvComplete.getLayoutParams().height = ViewGroup.LayoutParams.WRAP_CONTENT;
                 }
             } else {
                 setEnabled(config.isEmptyResultReturn);
@@ -191,11 +215,22 @@ public class CompleteSelectView extends LinearLayout {
                 } else {
                     setBackgroundResource(R.drawable.ps_ic_trans_1px);
                 }
+                int selectCompleteBtnNormalBackground = selectMainStyle.getSelectCompleteBtnNormalBackgroundResources();
+                tvComplete.setBackgroundResource(selectCompleteBtnNormalBackground);
+
                 int normalTextColor = selectMainStyle.getSelectNormalTextColor();
                 if (StyleUtils.checkStyleValidity(normalTextColor)) {
                     tvComplete.setTextColor(normalTextColor);
                 } else {
                     tvComplete.setTextColor(ContextCompat.getColor(getContext(), R.color.ps_color_9b));
+                }
+                int[] selectViewNormalSize = selectMainStyle.getSelectCompleteBtnNormalSize();
+                if (selectViewNormalSize.length == 2 && selectViewNormalSize[0] > 0 && selectViewNormalSize[1] > 0) {
+                    tvComplete.getLayoutParams().width = selectViewNormalSize[0];
+                    tvComplete.getLayoutParams().height = selectViewNormalSize[1];
+                } else {
+                    tvComplete.getLayoutParams().width = ViewGroup.LayoutParams.WRAP_CONTENT;
+                    tvComplete.getLayoutParams().height = ViewGroup.LayoutParams.WRAP_CONTENT;
                 }
             }
 

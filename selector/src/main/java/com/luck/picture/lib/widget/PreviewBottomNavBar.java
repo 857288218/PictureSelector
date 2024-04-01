@@ -48,11 +48,19 @@ public class PreviewBottomNavBar extends BottomNavBar {
     public void setBottomNavBarStyle() {
         super.setBottomNavBarStyle();
         BottomNavBarStyle bottomBarStyle = config.selectorStyle.getBottomBarStyle();
+        // 如果没设置BottomPreviewNarBarBackgroundColor，则使用BottomNarBarBackgroundColor
         if (StyleUtils.checkStyleValidity(bottomBarStyle.getBottomPreviewNarBarBackgroundColor())) {
             setBackgroundColor(bottomBarStyle.getBottomPreviewNarBarBackgroundColor());
         } else if (StyleUtils.checkSizeValidity(bottomBarStyle.getBottomNarBarBackgroundColor())) {
             setBackgroundColor(bottomBarStyle.getBottomNarBarBackgroundColor());
         }
+        if (bottomBarStyle.isShowPreviewBottomNotice()) {
+            tvNotice.setVisibility(VISIBLE);
+        } else {
+            tvNotice.setVisibility(GONE);
+        }
+        // rjq+: 预览页隐藏预览按钮
+        tvPreview.setVisibility(GONE);
     }
 
     @Override

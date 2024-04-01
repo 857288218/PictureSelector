@@ -167,6 +167,9 @@ public interface IPictureSelectorCommonEvent {
      */
     void sendChangeSubSelectPositionEvent(boolean adapterChange);
 
+    // rjq+：开启画廊时通知选择结果编号变化,用于刷新画廊数据
+    void sendChangeGallerySelectPositionEvent();
+
     /**
      * 原图选项发生变化
      */
