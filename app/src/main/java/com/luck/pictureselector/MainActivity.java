@@ -2152,7 +2152,7 @@ public class MainActivity extends AppCompatActivity implements IBridgePictureBeh
                 numberSelectMainStyle.setSelectNormalTextColor(ContextCompat.getColor(getContext(), R.color.ps_color_53575e));
                 numberSelectMainStyle.setSelectNormalText(R.string.ps_send);
                 numberSelectMainStyle.setAdapterPreviewGalleryBackgroundResource(R.drawable.ps_preview_gallery_bg);
-                numberSelectMainStyle.setAdapterPreviewGalleryItemSize(DensityUtil.dip2px(getContext(), 52));
+                numberSelectMainStyle.setAdapterPreviewGalleryImageSize(DensityUtil.dip2px(getContext(), 52));
                 numberSelectMainStyle.setPreviewSelectText(R.string.ps_select);
                 numberSelectMainStyle.setPreviewSelectTextSize(14);
                 numberSelectMainStyle.setPreviewSelectTextColor(ContextCompat.getColor(getContext(), R.color.ps_color_white));
