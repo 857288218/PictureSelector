@@ -90,6 +90,7 @@ public final class SelectorConfig {
     public boolean isEnablePreviewAudio;
     public boolean isPreviewFullScreenMode;
     public boolean isPreviewSelectReturn; // rjq+：预览选中后返回相册，反选不返回相册
+    public boolean isAlbumFolderSortByTime; // rjq: 相册列表是否按时间排序，默认按数量
     public boolean isPreviewZoomEffect;
     public boolean isOpenClickSound;
     public boolean isEmptyResultReturn;

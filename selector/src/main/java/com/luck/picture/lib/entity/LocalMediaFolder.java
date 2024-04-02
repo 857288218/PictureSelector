@@ -27,6 +27,9 @@ public class LocalMediaFolder implements Parcelable {
      * folder first path
      */
     private String firstImagePath;
+    // rjq+：first data AddedTime，用于folder时间排序
+
+    private long firstDateAddedTime;
 
     /**
      * first data mime type
@@ -72,6 +75,7 @@ public class LocalMediaFolder implements Parcelable {
         bucketId = in.readLong();
         folderName = in.readString();
         firstImagePath = in.readString();
+        firstDateAddedTime = in.readLong();
         firstMimeType = in.readString();
         folderTotalNum = in.readInt();
         isSelectTag = in.readByte() != 0;
@@ -85,6 +89,7 @@ public class LocalMediaFolder implements Parcelable {
         dest.writeLong(bucketId);
         dest.writeString(folderName);
         dest.writeString(firstImagePath);
+        dest.writeLong(firstDateAddedTime);
         dest.writeString(firstMimeType);
         dest.writeInt(folderTotalNum);
         dest.writeByte((byte) (isSelectTag ? 1 : 0));
@@ -148,6 +153,14 @@ public class LocalMediaFolder implements Parcelable {
 
     public void setFirstImagePath(String firstImagePath) {
         this.firstImagePath = firstImagePath;
+    }
+
+    public long getFirstDateAddedTime() {
+        return firstDateAddedTime;
+    }
+
+    public void setFirstDateAddedTime(long firstImageDateAddedTime) {
+        this.firstDateAddedTime = firstImageDateAddedTime;
     }
 
     public ArrayList<LocalMedia> getData() {

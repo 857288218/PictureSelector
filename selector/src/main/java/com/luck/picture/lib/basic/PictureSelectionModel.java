@@ -1209,6 +1209,11 @@ public final class PictureSelectionModel {
         return this;
     }
 
+    public PictureSelectionModel isAlbumFolderSortByTime(boolean sortByTime) {
+        selectionConfig.isAlbumFolderSortByTime = sortByTime;
+        return this;
+    }
+
     /**
      * Preview Zoom Effect Mode
      *

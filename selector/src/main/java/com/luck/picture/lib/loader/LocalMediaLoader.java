@@ -11,6 +11,7 @@ import com.luck.picture.lib.config.PictureConfig;
 import com.luck.picture.lib.config.PictureMimeType;
 import com.luck.picture.lib.config.SelectorConfig;
 import com.luck.picture.lib.config.SelectMimeType;
+import com.luck.picture.lib.config.SelectorProviders;
 import com.luck.picture.lib.entity.LocalMedia;
 import com.luck.picture.lib.entity.LocalMediaFolder;
 import com.luck.picture.lib.interfaces.OnQueryAlbumListener;
@@ -113,7 +114,7 @@ public final class LocalMediaLoader extends IBridgeMediaLoader {
                                     continue;
                                 }
                                 LocalMediaFolder folder = getImageFolder(media.getPath(),
-                                        media.getMimeType(), media.getParentFolderName(), imageFolders);
+                                        media.getMimeType(), media.getDateAddedTime(), media.getParentFolderName(), imageFolders);
                                 folder.setBucketId(media.getBucketId());
                                 folder.getData().add(media);
                                 folder.setFolderTotalNum(folder.getFolderTotalNum() + 1);
@@ -157,7 +158,11 @@ public final class LocalMediaLoader extends IBridgeMediaLoader {
                             }
 
                             if (latelyImages.size() > 0) {
-                                SortUtils.sortFolder(imageFolders);
+                                if (SelectorProviders.getInstance().getSelectorConfig().isAlbumFolderSortByTime) {
+                                    SortUtils.sortFolderByFirstDateAddedTime(imageFolders);
+                                } else {
+                                    SortUtils.sortFolder(imageFolders);
+                                }
                                 imageFolders.add(0, allImageFolder);
                                 allImageFolder.setFirstImagePath(latelyImages.get(0).getPath());
                                 allImageFolder.setFirstMimeType(latelyImages.get(0).getMimeType());
@@ -400,7 +405,7 @@ public final class LocalMediaLoader extends IBridgeMediaLoader {
      * @param folderName
      * @return
      */
-    private LocalMediaFolder getImageFolder(String firstPath, String firstMimeType, String folderName, List<LocalMediaFolder> imageFolders) {
+    private LocalMediaFolder getImageFolder(String firstPath, String firstMimeType, long firstDateAddedTime, String folderName, List<LocalMediaFolder> imageFolders) {
         for (LocalMediaFolder folder : imageFolders) {
             // Under the same folder, return yourself, otherwise create a new folder
             String name = folder.getFolderName();
@@ -414,6 +419,7 @@ public final class LocalMediaLoader extends IBridgeMediaLoader {
         LocalMediaFolder newFolder = new LocalMediaFolder();
         newFolder.setFolderName(folderName);
         newFolder.setFirstImagePath(firstPath);
+        newFolder.setFirstDateAddedTime(firstDateAddedTime);
         newFolder.setFirstMimeType(firstMimeType);
         imageFolders.add(newFolder);
         return newFolder;

@@ -14,6 +14,7 @@ import com.luck.picture.lib.config.PictureConfig;
 import com.luck.picture.lib.config.PictureMimeType;
 import com.luck.picture.lib.config.SelectMimeType;
 import com.luck.picture.lib.config.SelectorConfig;
+import com.luck.picture.lib.config.SelectorProviders;
 import com.luck.picture.lib.entity.LocalMedia;
 import com.luck.picture.lib.entity.LocalMediaFolder;
 import com.luck.picture.lib.entity.MediaData;
@@ -304,9 +305,11 @@ public final class LocalMediaPageLoader extends IBridgeMediaLoader {
                                     }
                                     long size = countMap.get(bucketId);
                                     long id = data.getLong(data.getColumnIndexOrThrow(MediaStore.Files.FileColumns._ID));
+                                    long time = data.getLong(data.getColumnIndexOrThrow(MediaStore.MediaColumns.DATE_ADDED));
                                     mediaFolder.setFolderName(bucketDisplayName);
                                     mediaFolder.setFolderTotalNum(ValueOf.toInt(size));
                                     mediaFolder.setFirstImagePath(MediaUtils.getRealPathUri(id, mimeType));
+                                    mediaFolder.setFirstDateAddedTime(time);
                                     mediaFolder.setFirstMimeType(mimeType);
                                     mediaFolders.add(mediaFolder);
                                     hashSet.add(bucketId);
@@ -324,9 +327,11 @@ public final class LocalMediaPageLoader extends IBridgeMediaLoader {
                                     String mimeType = data.getString(data.getColumnIndexOrThrow(MediaStore.MediaColumns.MIME_TYPE));
                                     long bucketId = data.getLong(data.getColumnIndexOrThrow(COLUMN_BUCKET_ID));
                                     int size = data.getInt(data.getColumnIndexOrThrow(COLUMN_COUNT));
+                                    long time = data.getLong(data.getColumnIndexOrThrow(MediaStore.MediaColumns.DATE_ADDED));
                                     LocalMediaFolder mediaFolder = new LocalMediaFolder();
                                     mediaFolder.setBucketId(bucketId);
                                     mediaFolder.setFirstImagePath(url);
+                                    mediaFolder.setFirstDateAddedTime(time);
                                     mediaFolder.setFolderName(bucketDisplayName);
                                     mediaFolder.setFirstMimeType(mimeType);
                                     mediaFolder.setFolderTotalNum(size);
@@ -369,7 +374,11 @@ public final class LocalMediaPageLoader extends IBridgeMediaLoader {
                             if (totalCount == 0) {
                                 return mediaFolders;
                             }
-                            SortUtils.sortFolder(mediaFolders);
+                            if (SelectorProviders.getInstance().getSelectorConfig().isAlbumFolderSortByTime) {
+                                SortUtils.sortFolderByFirstDateAddedTime(mediaFolders);
+                            } else {
+                                SortUtils.sortFolder(mediaFolders);
+                            }
                             allMediaFolder.setFolderTotalNum(totalCount);
                             allMediaFolder.setBucketId(PictureConfig.ALL);
                             String folderName;

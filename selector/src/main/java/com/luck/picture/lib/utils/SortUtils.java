@@ -28,6 +28,16 @@ public class SortUtils {
         });
     }
 
+    public static void sortFolderByFirstDateAddedTime(List<LocalMediaFolder> imageFolders) {
+        Collections.sort(imageFolders, (lhs, rhs) -> {
+            if (lhs.getData() == null || rhs.getData() == null) {
+                return 0;
+            }
+            long lSize = lhs.getFirstDateAddedTime();
+            long rSize = rhs.getFirstDateAddedTime();
+            return Long.compare(rSize, lSize);
+        });
+    }
 
     /**
      * Sort by the add Time of files
