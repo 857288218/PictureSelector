@@ -889,7 +889,8 @@ public class PictureSelectorFragment extends PictureCommonFragment
                 if (DoubleUtils.isFastDoubleClick()) {
                     return;
                 }
-                if (selectorConfig.onOpenCameraClickInterceptorListener != null && selectorConfig.onOpenCameraClickInterceptorListener.openCameraClickInterceptorListener()) {
+                if (selectorConfig.onOpenCameraClickInterceptorListener != null &&
+                        selectorConfig.onOpenCameraClickInterceptorListener.openCameraClickInterceptorListener(PictureSelectorFragment.this, selectorConfig.chooseMode, PictureConfig.REQUEST_CAMERA)) {
                     return;
                 }
                 openSelectedCamera();
