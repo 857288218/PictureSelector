@@ -116,6 +116,7 @@ public final class SelectorConfig {
     public boolean isPageStrategy;
     public boolean isFilterInvalidFile;
     public boolean isMaxSelectEnabledMask;
+    public boolean canMaxSelectMaskItemClick; // rjq+: 当isMaxSelectEnabledMask=true时，不可选的item是否能响应点击事件
     public int defaultColorFilterColor;
     public int selectColorFilterColor;
     public int maxSelectColorFilterColor;

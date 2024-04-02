@@ -571,6 +571,11 @@ public final class PictureSelectionModel {
         return this;
     }
 
+    public PictureSelectionModel canMaxSelectMaskItemClick(boolean canClick) {
+        selectionConfig.canMaxSelectMaskItemClick = canClick;
+        return this;
+    }
+
     public PictureSelectionModel setDefaultMaskColorFilterColor(int color) {
         selectionConfig.defaultColorFilterColor = color;
         return this;

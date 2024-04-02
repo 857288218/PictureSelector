@@ -206,7 +206,7 @@ public class BaseRecyclerMediaHolder extends RecyclerView.ViewHolder {
                         || PictureMimeType.isHasAudio(media.getMimeType()) && (selectorConfig.isEnablePreviewAudio
                         || selectorConfig.selectionMode == SelectModeConfig.SINGLE);
                 if (isPreview) {
-                    if (media.isMaxSelectEnabledMask()) {
+                    if (media.isMaxSelectEnabledMask() && !selectorConfig.canMaxSelectMaskItemClick) {
                         return;
                     }
                     listener.onItemClick(tvCheck, position, media);
