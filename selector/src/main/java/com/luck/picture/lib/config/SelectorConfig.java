@@ -169,6 +169,7 @@ public final class SelectorConfig {
     public OnCameraInterceptListener onCameraInterceptListener;
     public OnOpenCameraClickInterceptorListener onOpenCameraClickInterceptorListener;
     public OnBottomNavBarSelectedChangeListener onBottomNavBarSelectedChangeListener;
+    public OnCompleteSelectViewSelectedChangeListener onCompleteSelectViewSelectedChangeListener;
     public OnSelectLimitTipsListener onSelectLimitTipsListener;
     public OnResultCallbackListener<LocalMedia> onResultCallListener;
     public OnExternalPreviewEventListener onExternalPreviewEventListener;

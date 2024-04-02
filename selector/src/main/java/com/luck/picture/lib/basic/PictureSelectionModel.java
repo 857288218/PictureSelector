@@ -289,6 +289,12 @@ public final class PictureSelectionModel {
         return this;
     }
 
+    // rjq+:CompleteSelectView组件提供外部监听SelectedChange
+    public PictureSelectionModel setCompleteSelectViewSelectedChangeListener(OnCompleteSelectViewSelectedChangeListener listener) {
+        selectionConfig.onCompleteSelectViewSelectedChangeListener = listener;
+        return this;
+    }
+
     /**
      * Intercept Record Audio click events, and users can implement their own Record Audio framework
      *

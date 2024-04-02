@@ -254,5 +254,12 @@ public class CompleteSelectView extends ConstraintLayout {
                 tvComplete.setTextSize(normalTextSize);
             }
         }
+        if (config.onCompleteSelectViewSelectedChangeListener != null) {
+            config.onCompleteSelectViewSelectedChangeListener.onSelectedChange(this, config.getSelectedResult());
+        }
+    }
+
+    public void setCompleteBtnText(String text) {
+        tvComplete.setText(text);
     }
 }
