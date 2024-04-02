@@ -179,7 +179,7 @@ public class BottomNavBar extends RelativeLayout implements View.OnClickListener
         if (bottomBarStyle.isShowBottomNotice()) {
             tvNotice.setVisibility(VISIBLE);
         } else {
-            tvPreview.setVisibility(GONE);
+            tvNotice.setVisibility(GONE);
         }
 
         int bottomNoticeColor = bottomBarStyle.getBottomNoticeTextColor();
