@@ -374,7 +374,7 @@ public final class LocalMediaPageLoader extends IBridgeMediaLoader {
                             if (totalCount == 0) {
                                 return mediaFolders;
                             }
-                            if (SelectorProviders.getInstance().getSelectorConfig().isAlbumFolderSortByTime) {
+                            if (getConfig().isAlbumFolderSortByTime) {
                                 SortUtils.sortFolderByFirstDateAddedTime(mediaFolders);
                             } else {
                                 SortUtils.sortFolder(mediaFolders);
