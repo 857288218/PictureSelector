@@ -32,6 +32,7 @@ import java.util.List;
  */
 public class BaseRecyclerMediaHolder extends RecyclerView.ViewHolder {
     public ImageView ivPicture;
+    public View viewMaxSelectMask;
     public TextView tvCheck;
     public View btnCheck;
     public Context mContext;
@@ -39,6 +40,7 @@ public class BaseRecyclerMediaHolder extends RecyclerView.ViewHolder {
     public boolean isSelectNumberStyle;
     public boolean isHandleMask;
     private ColorFilter defaultColorFilter, selectColorFilter, maskWhiteColorFilter;
+    private int maxSelectItemMaskColor; // rjq+: 优先使用maxSelectItemMaskColor，其次maskWhiteColorFilter
     private PictureImageGridAdapter.OnItemClickListener listener;
 
     public BaseRecyclerMediaHolder(@NonNull View itemView) {
@@ -52,9 +54,11 @@ public class BaseRecyclerMediaHolder extends RecyclerView.ViewHolder {
         defaultColorFilter = StyleUtils.getColorFilter(mContext, selectorConfig.defaultColorFilterColor);
         selectColorFilter = StyleUtils.getColorFilter(mContext, selectorConfig.selectColorFilterColor);
         maskWhiteColorFilter = StyleUtils.getColorFilter(mContext, selectorConfig.maxSelectColorFilterColor);
+        maxSelectItemMaskColor = selectorConfig.maxSelectItemMaskColor;
         SelectMainStyle selectMainStyle = selectorConfig.selectorStyle.getSelectMainStyle();
         isSelectNumberStyle = selectMainStyle.isSelectNumberStyle();
         ivPicture = itemView.findViewById(R.id.ivPicture);
+        viewMaxSelectMask = itemView.findViewById(R.id.view_max_select_mask);
         tvCheck = itemView.findViewById(R.id.tvCheck);
         btnCheck = itemView.findViewById(R.id.btnCheck);
         if (config.selectionMode == SelectModeConfig.SINGLE && config.isDirectReturnSingle) {
@@ -157,6 +161,9 @@ public class BaseRecyclerMediaHolder extends RecyclerView.ViewHolder {
         btnCheck.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                if (media.isMaxSelectEnabledMask() && !selectorConfig.canMaxSelectMaskItemClickCheck) {
+                    return;
+                }
                 if (listener == null) {
                     return;
                 }
@@ -206,7 +213,7 @@ public class BaseRecyclerMediaHolder extends RecyclerView.ViewHolder {
                         || PictureMimeType.isHasAudio(media.getMimeType()) && (selectorConfig.isEnablePreviewAudio
                         || selectorConfig.selectionMode == SelectModeConfig.SINGLE);
                 if (isPreview) {
-                    if (media.isMaxSelectEnabledMask() && !selectorConfig.canMaxSelectMaskItemClick) {
+                    if (media.isMaxSelectEnabledMask() && !selectorConfig.canMaxSelectMaskItemPreview) {
                         return;
                     }
                     listener.onItemClick(tvCheck, position, media);
@@ -262,9 +269,16 @@ public class BaseRecyclerMediaHolder extends RecyclerView.ViewHolder {
             }
         }
         if (isEnabledMask) {
-            ivPicture.setColorFilter(maskWhiteColorFilter);
+            if (StyleUtils.checkStyleValidity(maxSelectItemMaskColor)) {
+                viewMaxSelectMask.setVisibility(View.VISIBLE);
+                viewMaxSelectMask.setBackgroundColor(maxSelectItemMaskColor);
+            } else {
+                viewMaxSelectMask.setVisibility(View.GONE);
+                ivPicture.setColorFilter(maskWhiteColorFilter);
+            }
             media.setMaxSelectEnabledMask(true);
         } else {
+            viewMaxSelectMask.setVisibility(View.GONE);
             media.setMaxSelectEnabledMask(false);
         }
     }

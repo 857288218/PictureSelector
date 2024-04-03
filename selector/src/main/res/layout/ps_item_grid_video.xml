@@ -40,4 +40,10 @@
         android:background="@drawable/ps_ic_shadow_bg"
         android:textSize="12sp" />
 
+    <View
+        android:id="@+id/view_max_select_mask"
+        android:visibility="gone"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
+
 </com.luck.picture.lib.widget.SquareRelativeLayout>

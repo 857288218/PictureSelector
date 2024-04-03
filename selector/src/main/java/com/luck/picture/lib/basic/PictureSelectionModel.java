@@ -577,8 +577,13 @@ public final class PictureSelectionModel {
         return this;
     }
 
-    public PictureSelectionModel canMaxSelectMaskItemClick(boolean canClick) {
-        selectionConfig.canMaxSelectMaskItemClick = canClick;
+    public PictureSelectionModel canMaxSelectMaskItemPreview(boolean canPreview) {
+        selectionConfig.canMaxSelectMaskItemPreview = canPreview;
+        return this;
+    }
+
+    public PictureSelectionModel canMaxSelectMaskItemClickCheck(boolean canClick) {
+        selectionConfig.canMaxSelectMaskItemClickCheck = canClick;
         return this;
     }
 
@@ -589,6 +594,11 @@ public final class PictureSelectionModel {
 
     public PictureSelectionModel setMaxSelectMaskColorFilterColor(int color) {
         selectionConfig.maxSelectColorFilterColor = color;
+        return this;
+    }
+
+    public PictureSelectionModel setMaxSelectItemMaskColor(int color) {
+        selectionConfig.maxSelectItemMaskColor = color;
         return this;
     }
 

@@ -42,5 +42,10 @@
         android:textColor="@color/ps_color_white"
         android:textSize="11sp" />
 
+    <View
+        android:id="@+id/view_max_select_mask"
+        android:visibility="gone"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
 
 </com.luck.picture.lib.widget.SquareRelativeLayout>

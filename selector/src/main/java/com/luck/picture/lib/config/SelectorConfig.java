@@ -116,10 +116,12 @@ public final class SelectorConfig {
     public boolean isPageStrategy;
     public boolean isFilterInvalidFile;
     public boolean isMaxSelectEnabledMask;
-    public boolean canMaxSelectMaskItemClick; // rjq+: 当isMaxSelectEnabledMask=true时，不可选的item是否能响应点击事件
+    public boolean canMaxSelectMaskItemPreview; // rjq+: 当isMaxSelectEnabledMask=true时，不可选的item是否能进入预览页
+    public boolean canMaxSelectMaskItemClickCheck = true; // rjq+: 当isMaxSelectEnabledMask=true时，不可选的item是否能响应check事件
     public int defaultColorFilterColor;
     public int selectColorFilterColor;
     public int maxSelectColorFilterColor;
+    public int maxSelectItemMaskColor; // rjq+：isMaxSelectEnabledMask=true时，优先使用该颜色，如果没设置maxSelectItemMaskColor则使用maxSelectColorFilterColor
     public int animationMode;
     public boolean isAutomaticTitleRecyclerTop;
     public boolean isQuickCapture;
