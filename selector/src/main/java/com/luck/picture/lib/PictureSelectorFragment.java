@@ -69,6 +69,7 @@ import com.luck.picture.lib.utils.AnimUtils;
 import com.luck.picture.lib.utils.DateUtils;
 import com.luck.picture.lib.utils.DensityUtil;
 import com.luck.picture.lib.utils.DoubleUtils;
+import com.luck.picture.lib.utils.SortUtils;
 import com.luck.picture.lib.utils.StyleUtils;
 import com.luck.picture.lib.utils.ToastUtils;
 import com.luck.picture.lib.utils.ValueOf;
@@ -1226,6 +1227,7 @@ public class PictureSelectorFragment extends PictureCommonFragment
             currentLocalMediaFolder.setFolderName(media.getParentFolderName());
             currentLocalMediaFolder.setFirstMimeType(media.getMimeType());
             currentLocalMediaFolder.setFirstImagePath(media.getPath());
+            currentLocalMediaFolder.setFirstDateAddedTime(media.getDateAddedTime());
             currentLocalMediaFolder.setFolderTotalNum(mAdapter.getData().size());
             currentLocalMediaFolder.setCurrentDataPage(mPage);
             currentLocalMediaFolder.setHasMore(false);
@@ -1269,6 +1271,7 @@ public class PictureSelectorFragment extends PictureCommonFragment
             allFolder = albumListPopWindow.getFolder(0);
         }
         allFolder.setFirstImagePath(media.getPath());
+        allFolder.setFirstDateAddedTime(media.getDateAddedTime());
         allFolder.setFirstMimeType(media.getMimeType());
         allFolder.setData(mAdapter.getData());
         allFolder.setBucketId(PictureConfig.ALL);
@@ -1310,6 +1313,13 @@ public class PictureSelectorFragment extends PictureCommonFragment
                 ? cameraFolder.getFolderTotalNum() : cameraFolder.getFolderTotalNum() + 1);
         cameraFolder.setFirstImagePath(selectorConfig.cameraPath);
         cameraFolder.setFirstMimeType(media.getMimeType());
+        cameraFolder.setFirstDateAddedTime(media.getDateAddedTime());
+        // rjq+: 拍照/拍视频合并到相应的专辑目录中后需要对所有专辑排序
+        if (selectorConfig.isAlbumFolderSortByTime) {
+            SortUtils.sortFolderByFirstDateAddedTime(albumList);
+        } else {
+            SortUtils.sortFolder(albumList);
+        }
         albumListPopWindow.bindAlbumData(albumList);
     }
 
