@@ -124,6 +124,9 @@ public class CustomCameraView extends RelativeLayout implements CameraXOrientati
      * 自定义拍照文件名
      */
     private String outPutCameraFileName;
+    // rjq+: 当没设置OutputPathDir时保存的图片存储在外部存储的哪个目录中，例如：DCIM/Camera
+    private String imageContentValuesRelativePath;
+    private String videoContentValuesRelativePath;
 
     /**
      * 设置每秒的录制帧数
@@ -461,10 +464,10 @@ public class CustomCameraView extends RelativeLayout implements CameraXOrientati
             // 当用户未设置存储路径时，相片默认是存在外部公共目录下
             Uri externalSavedUri;
             if (isImageCaptureEnabled()) {
-                ContentValues contentValues = CameraUtils.buildImageContentValues(outPutCameraFileName, imageFormatForQ);
+                ContentValues contentValues = CameraUtils.buildImageContentValues(outPutCameraFileName, imageFormatForQ, imageContentValuesRelativePath);
                 externalSavedUri = getContext().getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues);
             } else {
-                ContentValues contentValues = CameraUtils.buildVideoContentValues(outPutCameraFileName, videoFormatForQ);
+                ContentValues contentValues = CameraUtils.buildVideoContentValues(outPutCameraFileName, videoFormatForQ, videoContentValuesRelativePath);
                 externalSavedUri = getContext().getContentResolver().insert(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, contentValues);
             }
             if (externalSavedUri == null) {
@@ -507,6 +510,8 @@ public class CustomCameraView extends RelativeLayout implements CameraXOrientati
         lensFacing = isCameraAroundState ? CameraSelector.LENS_FACING_FRONT : CameraSelector.LENS_FACING_BACK;
         outPutCameraDir = extras.getString(SimpleCameraX.EXTRA_OUTPUT_PATH_DIR);
         outPutCameraFileName = extras.getString(SimpleCameraX.EXTRA_CAMERA_FILE_NAME);
+        imageContentValuesRelativePath = extras.getString(SimpleCameraX.EXTRA_SAVE_IMAGE_RELATIVE_PATH, CameraUtils.DCIM_CAMERA);
+        videoContentValuesRelativePath = extras.getString(SimpleCameraX.EXTRA_SAVE_VIDEO_RELATIVE_PATH, CameraUtils.MOVIES);
         videoFrameRate = extras.getInt(SimpleCameraX.EXTRA_VIDEO_FRAME_RATE);
         videoBitRate = extras.getInt(SimpleCameraX.EXTRA_VIDEO_BIT_RATE);
         isManualFocus = extras.getBoolean(SimpleCameraX.EXTRA_MANUAL_FOCUS);

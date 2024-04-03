@@ -21,7 +21,7 @@ import com.luck.lib.camerax.utils.FileUtils;
  */
 public class SimpleCameraX {
 
-    private static final String EXTRA_PREFIX = BuildConfig.LIBRARY_PACKAGE_NAME;
+    private static final String EXTRA_PREFIX = "SimpleCameraX";
 
     public static final String EXTRA_OUTPUT_PATH_DIR = EXTRA_PREFIX + ".OutputPathDir";
 
@@ -56,6 +56,9 @@ public class SimpleCameraX {
     public static final String EXTRA_ZOOM_PREVIEW = EXTRA_PREFIX + ".isZoomPreview";
 
     public static final String EXTRA_AUTO_ROTATION = EXTRA_PREFIX + ".isAutoRotation";
+
+    public static final String EXTRA_SAVE_IMAGE_RELATIVE_PATH = EXTRA_PREFIX + ".imageRelativePath";
+    public static final String EXTRA_SAVE_VIDEO_RELATIVE_PATH = EXTRA_PREFIX + ".videoRelativePath";
 
 
     private final Intent mCameraIntent;
@@ -366,5 +369,13 @@ public class SimpleCameraX {
             return "";
         }
         return FileUtils.isContent(uri.toString()) ? uri.toString() : uri.getPath();
+    }
+
+    // rjq+: 当没设置OutputPathDir时保存的图片存储在外部存储的哪个目录中，例如：DCIM/Camera
+    public void setImageContentValuesRelativePath(String relativePath) {
+        mCameraBundle.putString(EXTRA_SAVE_IMAGE_RELATIVE_PATH, relativePath);
+    }
+    public void setVideoContentValuesRelativePath(String relativePath) {
+        mCameraBundle.putString(EXTRA_SAVE_VIDEO_RELATIVE_PATH, relativePath);
     }
 }

@@ -19,7 +19,8 @@ public class CameraUtils {
     public final static String MIME_TYPE_PREFIX_VIDEO = "video";
     public final static String MIME_TYPE_IMAGE = "image/jpeg";
     public final static String MIME_TYPE_VIDEO = "video/mp4";
-    public final static String DCIM_CAMERA = "DCIM/Camera";
+    public final static String DCIM_CAMERA = Environment.DIRECTORY_DCIM + "/Camera";
+    public final static String MOVIES = Environment.DIRECTORY_MOVIES;
     public final static String JPEG = ".jpeg";
     public final static String MP4 = ".mp4";
 
@@ -30,7 +31,7 @@ public class CameraUtils {
      * @param mimeType       资源类型
      * @return
      */
-    public static ContentValues buildImageContentValues(String cameraFileName, String mimeType) {
+    public static ContentValues buildImageContentValues(String cameraFileName, String mimeType, String relativePath) {
         String time = String.valueOf(System.currentTimeMillis());
         // ContentValues是我们希望这条记录被创建时包含的数据信息
         ContentValues values = new ContentValues(3);
@@ -48,7 +49,7 @@ public class CameraUtils {
         values.put(MediaStore.Images.Media.MIME_TYPE, TextUtils.isEmpty(mimeType) || mimeType.startsWith(MIME_TYPE_PREFIX_VIDEO) ? MIME_TYPE_IMAGE : mimeType);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             values.put(MediaStore.Images.Media.DATE_TAKEN, time);
-            values.put(MediaStore.Images.Media.RELATIVE_PATH, DCIM_CAMERA);
+            values.put(MediaStore.Images.Media.RELATIVE_PATH, relativePath);
         }
         return values;
     }
@@ -61,7 +62,7 @@ public class CameraUtils {
      * @param mimeType       资源类型
      * @return
      */
-    public static ContentValues buildVideoContentValues(String cameraFileName, String mimeType) {
+    public static ContentValues buildVideoContentValues(String cameraFileName, String mimeType, String relativePath) {
         String time = String.valueOf(System.currentTimeMillis());
         // ContentValues是我们希望这条记录被创建时包含的数据信息
         ContentValues values = new ContentValues(3);
@@ -80,7 +81,7 @@ public class CameraUtils {
                 || mimeType.startsWith(MIME_TYPE_PREFIX_IMAGE) ? MIME_TYPE_VIDEO : mimeType);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             values.put(MediaStore.Video.Media.DATE_TAKEN, time);
-            values.put(MediaStore.Video.Media.RELATIVE_PATH, Environment.DIRECTORY_MOVIES);
+            values.put(MediaStore.Video.Media.RELATIVE_PATH, relativePath);
         }
         return values;
     }
