@@ -31,7 +31,7 @@ ext {
 apply from: '../publish.gradle'
 
 dependencies {
-    def camerax_version = "1.2.1"
+    def camerax_version = "1.2.3"
     api "androidx.camera:camera-core:${camerax_version}"
     api "androidx.camera:camera-camera2:${camerax_version}"
     implementation "androidx.camera:camera-view:${camerax_version}"

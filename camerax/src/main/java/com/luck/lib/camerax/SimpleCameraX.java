@@ -380,9 +380,4 @@ public class SimpleCameraX {
     public void setVideoContentValuesRelativePath(String relativePath) {
         mCameraBundle.putString(EXTRA_SAVE_VIDEO_RELATIVE_PATH, relativePath);
     }
-
-    public void setImageTargetResolution(int width, int height) {
-        mCameraBundle.putInt(EXTRA_IMAGE_TARGET_RESOLUTION_WIDTH, width);
-        mCameraBundle.putInt(EXTRA_IMAGE_TARGET_RESOLUTION_HEIGHT, height);
-    }
 }
