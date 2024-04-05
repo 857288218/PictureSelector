@@ -19,9 +19,12 @@ import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.provider.MediaStore;
 import android.text.TextUtils;
 import android.util.AttributeSet;
+import android.util.Size;
 import android.view.Display;
 import android.view.Surface;
 import android.view.TextureView;
@@ -183,6 +186,9 @@ public class CustomCameraView extends RelativeLayout implements CameraXOrientati
 
     private long recordTime = 0;
 
+    private int imageTargetResolutionWidth = 0;
+    private int imageTargetResolutionHeight = 0;
+
     /**
      * 回调监听
      */
@@ -300,6 +306,7 @@ public class CustomCameraView extends RelativeLayout implements CameraXOrientati
                                 mCaptureLayout, mImageCallbackListener, mCameraListener));
             }
 
+            @SuppressLint({"MissingPermission", "RestrictedApi"})
             @Override
             public void recordStart() {
                 if (!mCameraProvider.isBound(mVideoCapture)) {
@@ -328,14 +335,15 @@ public class CustomCameraView extends RelativeLayout implements CameraXOrientati
                                 }
                                 Uri savedUri = outputFileResults.getSavedUri();
                                 SimpleCameraX.putOutputUri(activity.getIntent(), savedUri);
-                                String outPutPath = FileUtils.isContent(savedUri.toString()) ? savedUri.toString() : savedUri.getPath();
-                                mTextureView.setVisibility(View.VISIBLE);
+
+                                int index = indexOfChild(mTextureView);
+                                removeViewAt(index);
+                                mTextureView = new TextureView(getContext());
+                                RelativeLayout.LayoutParams param = new RelativeLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
+                                param.addRule(CENTER_IN_PARENT, TRUE);
+                                addView(mTextureView, index, param);
                                 tvCurrentTime.setVisibility(GONE);
-                                if (mTextureView.isAvailable()) {
-                                    startVideoPlay(outPutPath);
-                                } else {
-                                    mTextureView.setSurfaceTextureListener(surfaceTextureListener);
-                                }
+                                mTextureView.setSurfaceTextureListener(surfaceTextureListener);
                             }
 
                             @Override
@@ -428,9 +436,9 @@ public class CustomCameraView extends RelativeLayout implements CameraXOrientati
                         }
                     }
                 }
+                mImagePreviewBg.setAlpha(0F);
                 if (isImageCaptureEnabled()) {
                     mImagePreview.setVisibility(INVISIBLE);
-                    mImagePreviewBg.setAlpha(0F);
                     if (mCameraListener != null) {
                         mCameraListener.onPictureSuccess(outputPath);
                     }
@@ -517,6 +525,8 @@ public class CustomCameraView extends RelativeLayout implements CameraXOrientati
         isManualFocus = extras.getBoolean(SimpleCameraX.EXTRA_MANUAL_FOCUS);
         isZoomPreview = extras.getBoolean(SimpleCameraX.EXTRA_ZOOM_PREVIEW);
         isAutoRotation = extras.getBoolean(SimpleCameraX.EXTRA_AUTO_ROTATION);
+        imageTargetResolutionWidth = extras.getInt(SimpleCameraX.EXTRA_IMAGE_TARGET_RESOLUTION_WIDTH);
+        imageTargetResolutionHeight = extras.getInt(SimpleCameraX.EXTRA_IMAGE_TARGET_RESOLUTION_HEIGHT);
 
         int recordVideoMaxSecond = extras.getInt(SimpleCameraX.EXTRA_RECORD_VIDEO_MAX_SECOND, CustomCameraConfig.DEFAULT_MAX_RECORD_VIDEO);
         recordVideoMinSecond = extras.getInt(SimpleCameraX.EXTRA_RECORD_VIDEO_MIN_SECOND, CustomCameraConfig.DEFAULT_MIN_RECORD_VIDEO);
@@ -538,7 +548,7 @@ public class CustomCameraView extends RelativeLayout implements CameraXOrientati
                 TimeUnit.MILLISECONDS.toSeconds(recordVideoMaxSecond)
                         - TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(recordVideoMaxSecond)));
         tvCurrentTime.setText(format);
-        if (isAutoRotation && buttonFeatures != CustomCameraConfig.BUTTON_STATE_ONLY_RECORDER) {
+        if (isAutoRotation) {
             orientationEventListener = new CameraXOrientationEventListener(getContext(), this);
             startCheckOrientation();
         }
@@ -602,10 +612,14 @@ public class CustomCameraView extends RelativeLayout implements CameraXOrientati
         return mImageCapture.getTargetRotation();
     }
 
+    @SuppressLint("RestrictedApi")
     @Override
     public void onOrientationChanged(int orientation) {
         if (mImageCapture != null) {
             mImageCapture.setTargetRotation(orientation);
+        }
+        if (mVideoCapture != null) {
+            mVideoCapture.setTargetRotation(orientation);
         }
         if (mImageAnalyzer != null) {
             mImageAnalyzer.setTargetRotation(orientation);
@@ -632,6 +646,9 @@ public class CustomCameraView extends RelativeLayout implements CameraXOrientati
             if (displayId == CustomCameraView.this.displayId) {
                 if (mImageCapture != null) {
                     mImageCapture.setTargetRotation(mCameraPreviewView.getDisplay().getRotation());
+                }
+                if (mVideoCapture != null) {
+                    mVideoCapture.setTargetRotation(mCameraPreviewView.getDisplay().getRotation());
                 }
                 if (mImageAnalyzer != null) {
                     mImageAnalyzer.setTargetRotation(mCameraPreviewView.getDisplay().getRotation());
@@ -705,6 +722,7 @@ public class CustomCameraView extends RelativeLayout implements CameraXOrientati
             // Preview
             Preview preview = new Preview.Builder()
                     .setTargetRotation(mCameraPreviewView.getDisplay().getRotation())
+                    .setTargetResolution(new Size(DensityUtil.getScreenWidth(getContext()), DensityUtil.getScreenHeight(getContext())))
                     .build();
             // ImageCapture
             buildImageCapture();
@@ -800,16 +818,24 @@ public class CustomCameraView extends RelativeLayout implements CameraXOrientati
 
     private void buildImageCapture() {
         int screenAspectRatio = aspectRatio(DensityUtil.getScreenWidth(getContext()), DensityUtil.getScreenHeight(getContext()));
-        mImageCapture = new ImageCapture.Builder()
+        ImageCapture.Builder builder = new ImageCapture.Builder()
                 .setCaptureMode(ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY)
-                .setTargetAspectRatio(screenAspectRatio)
-                .setTargetRotation(mCameraPreviewView.getDisplay().getRotation())
-                .build();
+                .setTargetResolution(new Size(DensityUtil.getScreenWidth(getContext()), DensityUtil.getScreenHeight(getContext()))) // 指定拍摄的分辨率
+                .setTargetRotation(mCameraPreviewView.getDisplay().getRotation());
+//        if (imageTargetResolutionWidth > 0 && imageTargetResolutionHeight > 0) {
+//            builder.setTargetResolution(new Size(DensityUtil.getScreenWidth(getContext()), DensityUtil.getScreenHeight(getContext()))); // 指定拍摄的分辨率
+//p
+//        } else {
+//            builder.setTargetAspectRatio(screenAspectRatio); // 指定拍摄的宽高比
+//        }
+        mImageCapture = builder.build();
     }
 
     @SuppressLint("RestrictedApi")
     private void buildVideoCapture() {
         VideoCapture.Builder videoBuilder = new VideoCapture.Builder();
+        // 全屏录制
+        videoBuilder.setTargetResolution(new Size(DensityUtil.getScreenWidth(getContext()), DensityUtil.getScreenHeight(getContext())));
         videoBuilder.setTargetRotation(mCameraPreviewView.getDisplay().getRotation());
         if (videoFrameRate > 0) {
             videoBuilder.setVideoFrameRate(videoFrameRate);
@@ -941,7 +967,7 @@ public class CustomCameraView extends RelativeLayout implements CameraXOrientati
                     Context context = mImagePreview.getContext();
                     SimpleCameraX.putOutputUri(((Activity) context).getIntent(), savedUri);
                     mImagePreview.setVisibility(View.VISIBLE);
-                    if (customCameraView != null && customCameraView.isAutoRotation) {
+                    if (customCameraView != null) {
                         int targetRotation = customCameraView.getTargetRotation();
                         // 这种角度拍出来的图片宽比高大，所以使用ScaleType.FIT_CENTER缩放模式
                         if (targetRotation == Surface.ROTATION_90 || targetRotation == Surface.ROTATION_270) {
@@ -950,15 +976,18 @@ public class CustomCameraView extends RelativeLayout implements CameraXOrientati
                             mImagePreview.setAdjustViewBounds(false);
                             mImagePreview.setScaleType(ImageView.ScaleType.FIT_CENTER);
                         }
-                        View mImagePreviewBackground = mImagePreviewBgReference.get();
-                        if (mImagePreviewBackground != null) {
-                            mImagePreviewBackground.animate().alpha(1F).setDuration(220).start();
-                        }
                     }
                     ImageCallbackListener imageCallbackListener = mImageCallbackListenerReference.get();
                     if (imageCallbackListener != null) {
                         String outPutCameraPath = FileUtils.isContent(savedUri.toString()) ? savedUri.toString() : savedUri.getPath();
-                        imageCallbackListener.onLoadImage(outPutCameraPath, mImagePreview);
+                        // 图片加载完再显示黑底，避免闪一下
+                        Runnable loadComplete = () -> {
+                            View mImagePreviewBackground = mImagePreviewBgReference.get();
+                            if (mImagePreviewBackground != null) {
+                                mImagePreviewBackground.animate().alpha(1F).setDuration(220).start();
+                            }
+                        };
+                        imageCallbackListener.onLoadImage(outPutCameraPath, mImagePreview, loadComplete);
                     }
                 }
 
@@ -982,11 +1011,13 @@ public class CustomCameraView extends RelativeLayout implements CameraXOrientati
         }
     }
 
+    private Surface mSurface;
     private final TextureView.SurfaceTextureListener surfaceTextureListener = new TextureView.SurfaceTextureListener() {
         @Override
         public void onSurfaceTextureAvailable(SurfaceTexture surface, int width, int height) {
             String outputPath = SimpleCameraX.getOutputPath(activity.getIntent());
-            startVideoPlay(outputPath);
+            mSurface = new Surface(surface);
+            startVideoPlay(outputPath, mSurface);
         }
 
         @Override
@@ -1088,10 +1119,11 @@ public class CustomCameraView extends RelativeLayout implements CameraXOrientati
     /**
      * 重置状态
      */
+    @SuppressLint("RestrictedApi")
     private void resetState() {
+        mImagePreviewBg.setAlpha(0F);
         if (isImageCaptureEnabled()) {
             mImagePreview.setVisibility(INVISIBLE);
-            mImagePreviewBg.setAlpha(0F);
         } else {
             try {
                 mVideoCapture.stopRecording();
@@ -1109,7 +1141,7 @@ public class CustomCameraView extends RelativeLayout implements CameraXOrientati
      *
      * @param url
      */
-    private void startVideoPlay(String url) {
+    private void startVideoPlay(String url, Surface surface) {
         try {
             if (mMediaPlayer == null) {
                 mMediaPlayer = new MediaPlayer();
@@ -1121,21 +1153,17 @@ public class CustomCameraView extends RelativeLayout implements CameraXOrientati
             } else {
                 mMediaPlayer.setDataSource(url);
             }
-            mMediaPlayer.setSurface(new Surface(mTextureView.getSurfaceTexture()));
+            mMediaPlayer.setSurface(surface);
             mMediaPlayer.setVideoScalingMode(MediaPlayer.VIDEO_SCALING_MODE_SCALE_TO_FIT);
             mMediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
-            mMediaPlayer.setOnVideoSizeChangedListener(new MediaPlayer.OnVideoSizeChangedListener() {
-                @Override
-                public void
-                onVideoSizeChanged(MediaPlayer mp, int width, int height) {
-                    updateVideoViewSize(mMediaPlayer.getVideoWidth(), mMediaPlayer.getVideoHeight());
+            mMediaPlayer.setOnVideoSizeChangedListener((mp, width, height) -> updateVideoViewSize(width, height));
+            mMediaPlayer.setOnPreparedListener(mp -> mMediaPlayer.start());
+            mMediaPlayer.setOnInfoListener((mp, what, extra) -> {
+                if (what == MediaPlayer.MEDIA_INFO_VIDEO_RENDERING_START) {
+                    // 等视频播放时再显示黑底，避免闪黑一下
+                    mImagePreviewBg.setAlpha(1F);
                 }
-            });
-            mMediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
-                @Override
-                public void onPrepared(MediaPlayer mp) {
-                    mMediaPlayer.start();
-                }
+                return true;
             });
             mMediaPlayer.setLooping(true);
             mMediaPlayer.prepareAsync();
@@ -1151,7 +1179,10 @@ public class CustomCameraView extends RelativeLayout implements CameraXOrientati
      * @param videoHeight
      */
     private void updateVideoViewSize(float videoWidth, float videoHeight) {
+        // 判断是否为横屏视频
         if (videoWidth > videoHeight) {
+            // 如果是横屏视频则立马显示黑底
+            mImagePreview.animate().alpha(1F).setDuration(220).start();
             int height = (int) ((videoHeight / videoWidth) * getWidth());
             RelativeLayout.LayoutParams videoViewParam = new RelativeLayout.LayoutParams(LayoutParams.MATCH_PARENT, height);
             videoViewParam.addRule(CENTER_IN_PARENT, TRUE);
@@ -1178,6 +1209,13 @@ public class CustomCameraView extends RelativeLayout implements CameraXOrientati
             mMediaPlayer.stop();
             mMediaPlayer.release();
             mMediaPlayer = null;
+        }
+        if (mSurface != null) {
+            mSurface.release();
+            mSurface = null;
+        }
+        if (mTextureView.getSurfaceTexture() != null) {
+            mTextureView.getSurfaceTexture().release();
         }
         mTextureView.setVisibility(View.GONE);
     }

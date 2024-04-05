@@ -16,5 +16,5 @@ public interface CameraImageEngine {
      * @param url
      * @param imageView
      */
-    void loadImage(Context context, String url, ImageView imageView);
+    void loadImage(Context context, String url, ImageView imageView, Runnable loadComplete);
 }

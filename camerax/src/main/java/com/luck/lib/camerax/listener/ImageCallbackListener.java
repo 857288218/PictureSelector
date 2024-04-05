@@ -14,5 +14,5 @@ public interface ImageCallbackListener {
      * @param url       资源url
      * @param imageView 图片渲染控件
      */
-    void onLoadImage(String url, ImageView imageView);
+    void onLoadImage(String url, ImageView imageView, Runnable loadComplete);
 }

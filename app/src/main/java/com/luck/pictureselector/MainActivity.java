@@ -55,7 +55,11 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.SimpleItemAnimator;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.DataSource;
+import com.bumptech.glide.load.engine.GlideException;
+import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.CustomTarget;
+import com.bumptech.glide.request.target.Target;
 import com.bumptech.glide.request.transition.Transition;
 import com.luck.lib.camerax.CameraImageEngine;
 import com.luck.lib.camerax.SimpleCameraX;
@@ -1512,8 +1516,25 @@ public class MainActivity extends AppCompatActivity implements IBridgePictureBeh
             camera.setPermissionDescriptionListener(getSimpleXPermissionDescriptionListener());
             camera.setImageEngine(new CameraImageEngine() {
                 @Override
-                public void loadImage(Context context, String url, ImageView imageView) {
-                    Glide.with(context).load(url).into(imageView);
+                public void loadImage(Context context, String url, ImageView imageView, Runnable loadComplete) {
+                    Glide.with(context).load(url).listener(new RequestListener<Drawable>() {
+                        @Override
+                        public boolean onLoadFailed(@Nullable GlideException e, Object model,
+                                                    Target<Drawable> target,
+                                                    boolean isFirstResource) {
+                            loadComplete.run();
+                            return false;
+                        }
+
+                        @Override
+                        public boolean onResourceReady(Drawable resource, Object model,
+                                                       Target<Drawable> target,
+                                                       DataSource dataSource,
+                                                       boolean isFirstResource) {
+                            loadComplete.run();
+                            return false;
+                        }
+                    }).into(imageView);
                 }
             });
             camera.start(fragment.requireActivity(), fragment, requestCode);
