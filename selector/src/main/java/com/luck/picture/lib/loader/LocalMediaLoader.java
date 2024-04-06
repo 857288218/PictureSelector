@@ -14,6 +14,7 @@ import com.luck.picture.lib.config.SelectMimeType;
 import com.luck.picture.lib.config.SelectorProviders;
 import com.luck.picture.lib.entity.LocalMedia;
 import com.luck.picture.lib.entity.LocalMediaFolder;
+import com.luck.picture.lib.entity.MediaExtraInfo;
 import com.luck.picture.lib.interfaces.OnQueryAlbumListener;
 import com.luck.picture.lib.interfaces.OnQueryAllAlbumListener;
 import com.luck.picture.lib.interfaces.OnQueryDataResultListener;
@@ -347,6 +348,13 @@ public final class LocalMediaLoader extends IBridgeMediaLoader {
         if (orientation == 90 || orientation == 270) {
             width = data.getInt(heightColumn);
             height = data.getInt(widthColumn);
+        } else if (PictureMimeType.isHasVideo(mimeType)) {
+            // rjq+: 一些手机拍出的视频是竖屏的但宽高使用data.getInt拿到的是反的，且data.getInt(orientationColumn)=0，使用MediaMetadataRetriever校正视频宽高
+            MediaExtraInfo mediaExtraInfo = MediaUtils.getVideoSize(getContext(), absolutePath);
+            if (mediaExtraInfo.getWidth() > 0 && mediaExtraInfo.getHeight() > 0) {
+                width = mediaExtraInfo.getWidth();
+                height = mediaExtraInfo.getHeight();
+            }
         }
         long duration = data.getLong(durationColumn);
         long size = data.getLong(sizeColumn);

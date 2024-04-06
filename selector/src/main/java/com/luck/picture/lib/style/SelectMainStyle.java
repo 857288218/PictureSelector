@@ -378,11 +378,11 @@ public class SelectMainStyle {
     private int adapterPreviewGalleryItemLeftSpace = -1;
     // rjq+：预览页画廊PaddingRight
     private int adapterPreviewGalleryPaddingRight = -1;
-    // rjq+：预览页画廊RightSpace
+    // rjq+：预览页画廊item RightSpace
     private int adapterPreviewGalleryItemRightSpace = -1;
-    // rjq+：预览页画廊TopSpace
+    // rjq+：预览页画廊item TopSpace
     private int adapterPreviewGalleryItemTopSpace = -1;
-    // rjq+：预览页画廊BottomSpace
+    // rjq+：预览页画廊item BottomSpace
     private int adapterPreviewGalleryItemBottomSpace = -1;
     // rjq+：相册页画廊PaddingLeft
     private int adapterGalleryItemPaddingLeft = -1;
@@ -390,11 +390,11 @@ public class SelectMainStyle {
     private int adapterGalleryItemLeftSpace = -1;
     // rjq+：相册页画廊paddingRight
     private int adapterGalleryPaddingRight = -1;
-    // rjq+：相册页画廊RightSpace
+    // rjq+：相册页画廊item RightSpace
     private int adapterGalleryItemRightSpace = -1;
-    // rjq+：相册页画廊TopSpace
+    // rjq+：相册页画廊item TopSpace
     private int adapterGalleryItemTopSpace = -1;
-    // rjq+：相册页画廊BottomSpace
+    // rjq+：相册页画廊item BottomSpace
     private int adapterGalleryItemBottomSpace = -1;
 
     public SelectMainStyle() {

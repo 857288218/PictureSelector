@@ -169,8 +169,11 @@ public final class SelectorConfig {
     public IBridgeLoaderFactory loaderFactory;
     public InterpolatorFactory interpolatorFactory;
     public OnCameraInterceptListener onCameraInterceptListener;
+    // rjq+: 拦截相册Camera item点击事件，返回true代表消费该事件不再走库中逻辑
     public OnOpenCameraClickInterceptorListener onOpenCameraClickInterceptorListener;
+    // rjq+: BottomNavBar监听SelectedChange
     public OnBottomNavBarSelectedChangeListener onBottomNavBarSelectedChangeListener;
+    // rjq+: CompleteSelectView监听SelectedChange
     public OnCompleteSelectViewSelectedChangeListener onCompleteSelectViewSelectedChangeListener;
     public OnSelectLimitTipsListener onSelectLimitTipsListener;
     public OnResultCallbackListener<LocalMedia> onResultCallListener;
