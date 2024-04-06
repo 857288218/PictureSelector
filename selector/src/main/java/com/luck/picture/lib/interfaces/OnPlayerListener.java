@@ -15,7 +15,8 @@ public interface OnPlayerListener {
      * playing
      */
     void onPlayerReady();
-
+    // rjq+：画面开始渲染
+    void onRendingStart();
     /**
      * preparing to play
      */

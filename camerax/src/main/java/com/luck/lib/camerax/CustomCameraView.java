@@ -2,7 +2,6 @@ package com.luck.lib.camerax;
 
 import static androidx.camera.core.VideoCapture.ERROR_RECORDING_TOO_SHORT;
 import static androidx.camera.view.video.OnVideoSavedCallback.ERROR_MUXER;
-
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -19,8 +18,6 @@ import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
 import android.provider.MediaStore;
 import android.text.TextUtils;
 import android.util.AttributeSet;
@@ -32,7 +29,6 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.camera.camera2.interop.Camera2CameraInfo;
@@ -58,7 +54,6 @@ import androidx.camera.view.PreviewView;
 import androidx.core.content.ContextCompat;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.LiveData;
-
 import com.google.common.util.concurrent.ListenableFuture;
 import com.luck.lib.camerax.listener.CameraListener;
 import com.luck.lib.camerax.listener.CameraXOrientationEventListener;
@@ -76,9 +71,7 @@ import com.luck.lib.camerax.utils.FileUtils;
 import com.luck.lib.camerax.utils.SimpleXSpUtils;
 import com.luck.lib.camerax.widget.CaptureLayout;
 import com.luck.lib.camerax.widget.FocusImageView;
-
 import org.jetbrains.annotations.NotNull;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -186,6 +179,7 @@ public class CustomCameraView extends RelativeLayout implements CameraXOrientati
 
     private long recordTime = 0;
     private Size fullScreenSize;
+    private String recordShortNotice;
 
     /**
      * 回调监听
@@ -382,7 +376,11 @@ public class CustomCameraView extends RelativeLayout implements CameraXOrientati
                 mFlashLamp.setVisibility(VISIBLE);
                 tvCurrentTime.setVisibility(GONE);
                 mCaptureLayout.resetCaptureLayout();
-                mCaptureLayout.setTextWithAnimation(getContext().getString(R.string.picture_recording_time_is_short));
+                if (TextUtils.isEmpty(recordShortNotice)) {
+                    mCaptureLayout.setTextWithAnimation(getContext().getString(R.string.picture_recording_time_is_short));
+                } else {
+                    mCaptureLayout.setTextWithAnimation(recordShortNotice);
+                }
                 try {
                     mVideoCapture.stopRecording();
                 } catch (Exception e) {
@@ -524,6 +522,7 @@ public class CustomCameraView extends RelativeLayout implements CameraXOrientati
         isManualFocus = extras.getBoolean(SimpleCameraX.EXTRA_MANUAL_FOCUS);
         isZoomPreview = extras.getBoolean(SimpleCameraX.EXTRA_ZOOM_PREVIEW);
         isAutoRotation = extras.getBoolean(SimpleCameraX.EXTRA_AUTO_ROTATION);
+        recordShortNotice = extras.getString(SimpleCameraX.EXTRA_RECORD_SHORT_NOTICE);
 
         int recordVideoMaxSecond = extras.getInt(SimpleCameraX.EXTRA_RECORD_VIDEO_MAX_SECOND, CustomCameraConfig.DEFAULT_MAX_RECORD_VIDEO);
         recordVideoMinSecond = extras.getInt(SimpleCameraX.EXTRA_RECORD_VIDEO_MIN_SECOND, CustomCameraConfig.DEFAULT_MIN_RECORD_VIDEO);
@@ -716,7 +715,7 @@ public class CustomCameraView extends RelativeLayout implements CameraXOrientati
     private void bindCameraWithUserCases() {
         try {
             CameraSelector cameraSelector = new CameraSelector.Builder().requireLensFacing(lensFacing).build();
-            // Preview
+            // Preview，mCameraPreviewView本来就是全屏的(match_parent),所以preview不需要设置TargetResolution和ImageCapture一样
             Preview preview = new Preview.Builder()
                     .setTargetRotation(mCameraPreviewView.getDisplay().getRotation())
                     .build();
@@ -792,7 +791,7 @@ public class CustomCameraView extends RelativeLayout implements CameraXOrientati
     private void bindCameraVideoUseCases() {
         try {
             CameraSelector cameraSelector = new CameraSelector.Builder().requireLensFacing(lensFacing).build();
-            // Preview, mCameraPreviewView本来就是全屏的(match_parent),所以preview不需要设置TargetResolution和ImageCapture一样
+            // Preview, mCameraPreviewView本来就是全屏的(match_parent),所以preview不需要设置TargetResolution和VideoCapture一样
             Preview preview = new Preview.Builder()
                     .setTargetRotation(mCameraPreviewView.getDisplay().getRotation())
                     .build();

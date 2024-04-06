@@ -91,6 +91,15 @@ public class IjkPlayerEngine implements VideoPlayerEngine<IjkPlayerView> {
                 }
             }
         });
+        mediaPlayer.setOnInfoListener((mp, what, extra) -> {
+            if (what == IMediaPlayer.MEDIA_INFO_VIDEO_RENDERING_START) {
+                for (int i = 0; i < listeners.size(); i++) {
+                    OnPlayerListener playerListener = listeners.get(i);
+                    playerListener.onRendingStart();
+                }
+            }
+            return true;
+        });
         mediaPlayer.setOnCompletionListener(new IjkMediaPlayer.OnCompletionListener() {
 
             @Override

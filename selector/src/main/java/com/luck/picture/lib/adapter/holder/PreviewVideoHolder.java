@@ -186,6 +186,12 @@ public class PreviewVideoHolder extends BasePreviewHolder {
         }
 
         @Override
+        public void onRendingStart() {
+            // rjq+:有画面了再隐藏封面图，避免播放视频闪黑
+            coverImageView.setVisibility(View.GONE);
+        }
+
+        @Override
         public void onPlayerLoading() {
             progress.setVisibility(View.VISIBLE);
         }
@@ -260,7 +266,6 @@ public class PreviewVideoHolder extends BasePreviewHolder {
     private void playerIngUI() {
         progress.setVisibility(View.GONE);
         ivPlayButton.setVisibility(View.GONE);
-        coverImageView.setVisibility(View.GONE);
         videoPlayer.setVisibility(View.VISIBLE);
     }
 

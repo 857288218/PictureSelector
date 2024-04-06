@@ -156,5 +156,13 @@ public class ExoPlayerEngine implements VideoPlayerEngine<StyledPlayerView> {
                 }
             }
         }
+
+        @Override
+        public void onRenderedFirstFrame() {
+            for (int i = 0; i < listeners.size(); i++) {
+                OnPlayerListener playerListener = listeners.get(i);
+                playerListener.onRendingStart();
+            }
+        }
     };
 }
