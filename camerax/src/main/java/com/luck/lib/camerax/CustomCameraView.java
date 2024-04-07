@@ -179,6 +179,7 @@ public class CustomCameraView extends RelativeLayout implements CameraXOrientati
 
     private long recordTime = 0;
     private Size fullScreenSize;
+    private int screenAspectRatio = AspectRatio.RATIO_4_3;
     private String recordShortNotice;
 
     /**
@@ -252,6 +253,15 @@ public class CustomCameraView extends RelativeLayout implements CameraXOrientati
                         displayId = display.getDisplayId();
                     }
                     fullScreenSize = new Size(mCameraPreviewView.getWidth(), mCameraPreviewView.getHeight());
+                    // rjq+：根据照片宽高比决定CameraPreviewView大小
+                    screenAspectRatio = aspectRatio(DensityUtil.getScreenWidth(getContext()), DensityUtil.getScreenHeight(getContext()));
+                    int height = (int) (4 / 3f * mCameraPreviewView.getWidth());
+                    if (screenAspectRatio == AspectRatio.RATIO_16_9) {
+                        height = (int) (16 / 9f * mCameraPreviewView.getWidth());
+                    }
+                    RelativeLayout.LayoutParams previewParam = new RelativeLayout.LayoutParams(LayoutParams.MATCH_PARENT, height);
+                    previewParam.addRule(CENTER_IN_PARENT, TRUE);
+                    mCameraPreviewView.setLayoutParams(previewParam);
                 }
             }
         });
@@ -718,6 +728,8 @@ public class CustomCameraView extends RelativeLayout implements CameraXOrientati
             // Preview，mCameraPreviewView本来就是全屏的(match_parent),所以preview不需要设置TargetResolution和ImageCapture一样
             Preview preview = new Preview.Builder()
                     .setTargetRotation(mCameraPreviewView.getDisplay().getRotation())
+                    // todo(rjq) 设置TargetAspectRatio后华为P30预览时卡顿，拍摄时没事
+                    .setTargetAspectRatio(screenAspectRatio)
                     .build();
             // ImageCapture
             buildImageCapture();
@@ -750,12 +762,11 @@ public class CustomCameraView extends RelativeLayout implements CameraXOrientati
      */
     private void bindCameraImageUseCases() {
         try {
-            int screenAspectRatio = aspectRatio(DensityUtil.getScreenWidth(getContext()), DensityUtil.getScreenHeight(getContext()));
             int rotation = mCameraPreviewView.getDisplay().getRotation();
             CameraSelector cameraSelector = new CameraSelector.Builder().requireLensFacing(lensFacing).build();
             // Preview，mCameraPreviewView本来就是全屏的(match_parent),所以preview不需要设置TargetResolution和ImageCapture一样
             Preview preview = new Preview.Builder()
-//                    .setTargetAspectRatio(screenAspectRatio)
+                    .setTargetAspectRatio(screenAspectRatio)
                     .setTargetRotation(rotation)
                     .build();
 
@@ -764,7 +775,7 @@ public class CustomCameraView extends RelativeLayout implements CameraXOrientati
 
             // ImageAnalysis
             mImageAnalyzer = new ImageAnalysis.Builder()
-//                    .setTargetAspectRatio(screenAspectRatio)
+                    .setTargetAspectRatio(screenAspectRatio)
                     .setTargetRotation(rotation)
                     .build();
 
@@ -793,6 +804,7 @@ public class CustomCameraView extends RelativeLayout implements CameraXOrientati
             CameraSelector cameraSelector = new CameraSelector.Builder().requireLensFacing(lensFacing).build();
             // Preview, mCameraPreviewView本来就是全屏的(match_parent),所以preview不需要设置TargetResolution和VideoCapture一样
             Preview preview = new Preview.Builder()
+                    .setTargetAspectRatio(screenAspectRatio)
                     .setTargetRotation(mCameraPreviewView.getDisplay().getRotation())
                     .build();
             buildVideoCapture();
@@ -812,11 +824,10 @@ public class CustomCameraView extends RelativeLayout implements CameraXOrientati
     }
 
     private void buildImageCapture() {
-        int screenAspectRatio = aspectRatio(DensityUtil.getScreenWidth(getContext()), DensityUtil.getScreenHeight(getContext()));
         ImageCapture.Builder builder = new ImageCapture.Builder()
-                .setCaptureMode(ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY)
-//                .setTargetAspectRatio(screenAspectRatio)
-                .setTargetResolution(fullScreenSize) // 指定拍摄分辨率,全屏
+                .setCaptureMode(ImageCapture.CAPTURE_MODE_MAXIMIZE_QUALITY)
+                .setTargetAspectRatio(screenAspectRatio)
+//                .setTargetResolution(fullScreenSize) // 指定拍摄分辨率,全屏
                 .setTargetRotation(mCameraPreviewView.getDisplay().getRotation());
         mImageCapture = builder.build();
     }
@@ -825,7 +836,8 @@ public class CustomCameraView extends RelativeLayout implements CameraXOrientati
     private void buildVideoCapture() {
         VideoCapture.Builder videoBuilder = new VideoCapture.Builder();
         // 全屏录制
-        videoBuilder.setTargetResolution(fullScreenSize);
+//        videoBuilder.setTargetResolution(new Size(mCameraPreviewView.getWidth(), mCameraPreviewView.getHeight()));
+        videoBuilder.setTargetAspectRatio(screenAspectRatio);
         videoBuilder.setTargetRotation(mCameraPreviewView.getDisplay().getRotation());
         if (videoFrameRate > 0) {
             videoBuilder.setVideoFrameRate(videoFrameRate);
@@ -862,6 +874,7 @@ public class CustomCameraView extends RelativeLayout implements CameraXOrientati
                     if (mCameraInfo.isFocusMeteringSupported(action)) {
                         mCameraControl.cancelFocusAndMetering();
                         focusImageView.setDisappear(false);
+                        // todo(rjq) 这里x、y需要调整
                         focusImageView.startFocus(new Point((int) x, (int) y));
                         ListenableFuture<FocusMeteringResult> future = mCameraControl.startFocusAndMetering(action);
                         future.addListener(new Runnable() {
@@ -1144,7 +1157,7 @@ public class CustomCameraView extends RelativeLayout implements CameraXOrientati
                 mMediaPlayer.setDataSource(url);
             }
             mMediaPlayer.setSurface(surface);
-            mMediaPlayer.setVideoScalingMode(MediaPlayer.VIDEO_SCALING_MODE_SCALE_TO_FIT);
+//            mMediaPlayer.setVideoScalingMode(MediaPlayer.VIDEO_SCALING_MODE_SCALE_TO_FIT);
             mMediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
             mMediaPlayer.setOnVideoSizeChangedListener((mp, width, height) -> updateVideoViewSize(width, height));
             mMediaPlayer.setOnPreparedListener(mp -> mMediaPlayer.start());
@@ -1169,15 +1182,15 @@ public class CustomCameraView extends RelativeLayout implements CameraXOrientati
      * @param videoHeight
      */
     private void updateVideoViewSize(float videoWidth, float videoHeight) {
-        // 判断是否为横屏视频
         if (videoWidth > videoHeight) {
             // 如果是横屏视频则立马显示黑底
             mImagePreview.animate().alpha(1F).setDuration(220).start();
-            int height = (int) ((videoHeight / videoWidth) * getWidth());
-            RelativeLayout.LayoutParams videoViewParam = new RelativeLayout.LayoutParams(LayoutParams.MATCH_PARENT, height);
-            videoViewParam.addRule(CENTER_IN_PARENT, TRUE);
-            mTextureView.setLayoutParams(videoViewParam);
         }
+
+        int height = (int) ((videoHeight / videoWidth) * getWidth());
+        RelativeLayout.LayoutParams videoViewParam = new RelativeLayout.LayoutParams(LayoutParams.MATCH_PARENT, height);
+        videoViewParam.addRule(CENTER_IN_PARENT, TRUE);
+        mTextureView.setLayoutParams(videoViewParam);
     }
 
     /**
