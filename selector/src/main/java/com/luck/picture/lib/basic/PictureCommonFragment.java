@@ -1142,6 +1142,9 @@ public abstract class PictureCommonFragment extends Fragment implements IPicture
                 if (result != null) {
                     onScannerScanFile(result);
                     dispatchCameraMediaResult(result);
+                    if (selectorConfig.onDispatchCameraMediaResultListener != null) {
+                        selectorConfig.onDispatchCameraMediaResultListener.onDispatchCameraMediaResult(result);
+                    }
                 }
                 selectorConfig.cameraPath = "";
             }

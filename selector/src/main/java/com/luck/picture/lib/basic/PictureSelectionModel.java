@@ -467,6 +467,11 @@ public final class PictureSelectionModel {
         return this;
     }
 
+    public PictureSelectionModel setDispatchCameraMediaResultListener(OnDispatchCameraMediaResultListener listener) {
+        selectionConfig.onDispatchCameraMediaResultListener = listener;
+        return this;
+    }
+
     /**
      * Do you want to open a foreground service to prevent the system from reclaiming the memory
      * of some models due to the use of cameras
@@ -958,6 +963,16 @@ public final class PictureSelectionModel {
      */
     public PictureSelectionModel isDisplayCamera(boolean isDisplayCamera) {
         selectionConfig.isDisplayCamera = isDisplayCamera;
+        return this;
+    }
+
+    public PictureSelectionModel isCameraResultAutoSelect(boolean isCameraResultAutoSelect) {
+        selectionConfig.isCameraResultAutoSelect = isCameraResultAutoSelect;
+        return this;
+    }
+
+    public PictureSelectionModel isInsertCameraResult(boolean isInsertCameraResult) {
+        selectionConfig.isInsertCameraResult = isInsertCameraResult;
         return this;
     }
 

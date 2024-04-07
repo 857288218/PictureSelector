@@ -1203,7 +1203,7 @@ public class PictureSelectorFragment extends PictureCommonFragment
     @Override
     public void dispatchCameraMediaResult(LocalMedia media) {
         int exitsTotalNum = albumListPopWindow.getFirstAlbumImageCount();
-        if (!isAddSameImp(exitsTotalNum)) {
+        if (!isAddSameImp(exitsTotalNum) && selectorConfig.isInsertCameraResult) {
             mAdapter.getData().add(0, media);
             isCameraCallback = true;
         }
@@ -1213,29 +1213,31 @@ public class PictureSelectorFragment extends PictureCommonFragment
             if (selectResultCode == SelectedManager.ADD_SUCCESS) {
                 dispatchTransformResult();
             }
-        } else {
+        } else if (selectorConfig.isCameraResultAutoSelect) {
             confirmSelect(media, false);
         }
-        mAdapter.notifyItemInserted(selectorConfig.isDisplayCamera ? 1 : 0);
-        mAdapter.notifyItemRangeChanged(selectorConfig.isDisplayCamera ? 1 : 0, mAdapter.getData().size());
-        if (selectorConfig.isOnlySandboxDir) {
-            LocalMediaFolder currentLocalMediaFolder = selectorConfig.currentLocalMediaFolder;
-            if (currentLocalMediaFolder == null) {
-                currentLocalMediaFolder = new LocalMediaFolder();
+        if (selectorConfig.isInsertCameraResult) {
+            mAdapter.notifyItemInserted(selectorConfig.isDisplayCamera ? 1 : 0);
+            mAdapter.notifyItemRangeChanged(selectorConfig.isDisplayCamera ? 1 : 0, mAdapter.getData().size());
+            if (selectorConfig.isOnlySandboxDir) {
+                LocalMediaFolder currentLocalMediaFolder = selectorConfig.currentLocalMediaFolder;
+                if (currentLocalMediaFolder == null) {
+                    currentLocalMediaFolder = new LocalMediaFolder();
+                }
+                currentLocalMediaFolder.setBucketId(ValueOf.toLong(media.getParentFolderName().hashCode()));
+                currentLocalMediaFolder.setFolderName(media.getParentFolderName());
+                currentLocalMediaFolder.setFirstMimeType(media.getMimeType());
+                currentLocalMediaFolder.setFirstImagePath(media.getPath());
+                currentLocalMediaFolder.setFirstDateAddedTime(media.getDateAddedTime());
+                currentLocalMediaFolder.setFolderTotalNum(mAdapter.getData().size());
+                currentLocalMediaFolder.setCurrentDataPage(mPage);
+                currentLocalMediaFolder.setHasMore(false);
+                currentLocalMediaFolder.setData(mAdapter.getData());
+                mRecycler.setEnabledLoadMore(false);
+                selectorConfig.currentLocalMediaFolder = currentLocalMediaFolder;
+            } else {
+                mergeFolder(media);
             }
-            currentLocalMediaFolder.setBucketId(ValueOf.toLong(media.getParentFolderName().hashCode()));
-            currentLocalMediaFolder.setFolderName(media.getParentFolderName());
-            currentLocalMediaFolder.setFirstMimeType(media.getMimeType());
-            currentLocalMediaFolder.setFirstImagePath(media.getPath());
-            currentLocalMediaFolder.setFirstDateAddedTime(media.getDateAddedTime());
-            currentLocalMediaFolder.setFolderTotalNum(mAdapter.getData().size());
-            currentLocalMediaFolder.setCurrentDataPage(mPage);
-            currentLocalMediaFolder.setHasMore(false);
-            currentLocalMediaFolder.setData(mAdapter.getData());
-            mRecycler.setEnabledLoadMore(false);
-            selectorConfig.currentLocalMediaFolder = currentLocalMediaFolder;
-        } else {
-            mergeFolder(media);
         }
         allFolderSize = 0;
         if (mAdapter.getData().size() > 0 || selectorConfig.isDirectReturnSingle) {

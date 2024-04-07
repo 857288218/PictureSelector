@@ -81,6 +81,8 @@ public final class SelectorConfig {
     public int language;
     public int defaultLanguage;
     public boolean isDisplayCamera;
+    public boolean isCameraResultAutoSelect; // rjq+: 拍照/视频后的结果是否自动选择
+    public boolean isInsertCameraResult; // rjq+: 拍照/视频后的结果是否自动插入相册
     public boolean isGif;
     public boolean isWebp;
     public boolean isBmp;
@@ -193,6 +195,8 @@ public final class SelectorConfig {
     public OnGridItemSelectAnimListener onItemSelectAnimListener;
     public OnSelectAnimListener onSelectAnimListener;
     public OnCustomLoadingListener onCustomLoadingListener;
+    public OnDispatchCameraMediaResultListener onDispatchCameraMediaResultListener; // 监听相机拍照/视频结果
+
     /**
      * selected current album folder
      */
@@ -229,6 +233,8 @@ public final class SelectorConfig {
         isCameraAroundState = false;
         isWithVideoImage = false;
         isDisplayCamera = true;
+        isCameraResultAutoSelect = true;
+        isInsertCameraResult = true;
         isGif = false;
         isWebp = true;
         isBmp = true;
