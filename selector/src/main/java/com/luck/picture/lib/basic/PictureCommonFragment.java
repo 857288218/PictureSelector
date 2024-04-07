@@ -881,7 +881,7 @@ public abstract class PictureCommonFragment extends Fragment implements IPicture
                 Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
                 if (cameraIntent.resolveActivity(getActivity().getPackageManager()) != null) {
                     ForegroundService.startForegroundService(getAppContext(), selectorConfig.isCameraForegroundService);
-                    Uri imageUri = MediaStoreUtils.createCameraOutImageUri(getAppContext(), selectorConfig);
+                    Uri imageUri = MediaStoreUtils.createCameraOutImageUri(getAppContext());
                     if (imageUri != null) {
                         if (selectorConfig.isCameraAroundState) {
                             cameraIntent.putExtra(PictureConfig.CAMERA_FACING, PictureConfig.CAMERA_BEFORE);
@@ -928,7 +928,7 @@ public abstract class PictureCommonFragment extends Fragment implements IPicture
                 Intent cameraIntent = new Intent(MediaStore.ACTION_VIDEO_CAPTURE);
                 if (cameraIntent.resolveActivity(getActivity().getPackageManager()) != null) {
                     ForegroundService.startForegroundService(getAppContext(), selectorConfig.isCameraForegroundService);
-                    Uri videoUri = MediaStoreUtils.createCameraOutVideoUri(getAppContext(), selectorConfig);
+                    Uri videoUri = MediaStoreUtils.createCameraOutVideoUri(getAppContext());
                     if (videoUri != null) {
                         cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, videoUri);
                         if (selectorConfig.isCameraAroundState) {

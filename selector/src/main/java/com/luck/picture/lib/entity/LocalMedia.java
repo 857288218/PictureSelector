@@ -199,6 +199,9 @@ public class LocalMedia implements Parcelable {
      */
     private boolean isEditorImage;
 
+    // rjq+: 标识需要校验Orientation，否则宽高可能拿到的是反的
+    private boolean needCheckVideoOrientation;
+
     public LocalMedia() {
     }
 
@@ -238,6 +241,7 @@ public class LocalMedia implements Parcelable {
         isMaxSelectEnabledMask = in.readByte() != 0;
         isGalleryEnabledMask = in.readByte() != 0;
         isEditorImage = in.readByte() != 0;
+        needCheckVideoOrientation = in.readByte() != 0;
     }
 
     @Override
@@ -277,6 +281,7 @@ public class LocalMedia implements Parcelable {
         dest.writeByte((byte) (isMaxSelectEnabledMask ? 1 : 0));
         dest.writeByte((byte) (isGalleryEnabledMask ? 1 : 0));
         dest.writeByte((byte) (isEditorImage ? 1 : 0));
+        dest.writeByte((byte) (needCheckVideoOrientation ? 1 : 0));
     }
 
     @Override
@@ -735,6 +740,13 @@ public class LocalMedia implements Parcelable {
 
     public void setVideoThumbnailPath(String videoThumbnailPath) {
         this.videoThumbnailPath = videoThumbnailPath;
+    }
+
+    public boolean getNeedCheckVideoOrientation() {
+        return needCheckVideoOrientation;
+    }
+    public void setNeedCheckVideoOrientation(boolean need) {
+        this.needCheckVideoOrientation = need;
     }
 
     /**

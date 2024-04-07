@@ -14,6 +14,7 @@ import com.luck.picture.lib.config.SelectMimeType;
 import com.luck.picture.lib.config.SelectorProviders;
 import com.luck.picture.lib.entity.LocalMedia;
 import com.luck.picture.lib.entity.LocalMediaFolder;
+import com.luck.picture.lib.entity.MediaData;
 import com.luck.picture.lib.entity.MediaExtraInfo;
 import com.luck.picture.lib.interfaces.OnQueryAlbumListener;
 import com.luck.picture.lib.interfaces.OnQueryAllAlbumListener;
@@ -210,6 +211,35 @@ public final class LocalMediaLoader extends IBridgeMediaLoader {
                 if (query != null) {
                     query.onComplete(result);
                 }
+                // rjq+: 一些手机拍出的视频是竖屏的但宽高使用cursor拿到的是反的，且data.getInt(orientationColumn)=0，使用MediaMetadataRetriever校正视频宽高
+                // 这里单独开启线程处理，MediaMetadataRetriever为耗时操作，在parseLocalMedia()中处理会导致UI显示延迟
+                PictureThreadUtils.executeByIo(new PictureThreadUtils.SimpleTask<String>() {
+                    @Override
+                    public String doInBackground() {
+                        if (result != null && result.size() > 0) {
+                            for (int i=0; i<result.size(); i++) {
+                                LocalMediaFolder folder = result.get(i);
+                                for (int j=0; j<folder.getData().size(); j++) {
+                                    LocalMedia media = folder.getData().get(j);
+                                    if (media.getNeedCheckVideoOrientation()) {
+                                        String orientation = MediaUtils.getVideoOrientation(getContext(), media.getRealPath());
+                                        if ((TextUtils.equals("90", orientation) || TextUtils.equals("270", orientation))) {
+                                            int height = media.getWidth();
+                                            media.setWidth(media.getHeight());
+                                            media.setHeight(height);
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        return "";
+                    }
+
+                    @Override
+                    public void onSuccess(String s) {
+                        PictureThreadUtils.cancel(this);
+                    }
+                });
             }
         });
     }
@@ -342,22 +372,16 @@ public final class LocalMediaLoader extends IBridgeMediaLoader {
             }
         }
 
+        boolean needCheckOrientation = false;
         int width = data.getInt(widthColumn);
         int height = data.getInt(heightColumn);
         int orientation = data.getInt(orientationColumn);
         if (orientation == 90 || orientation == 270) {
             width = data.getInt(heightColumn);
             height = data.getInt(widthColumn);
+        } else if (PictureMimeType.isHasVideo(mimeType)) {
+            needCheckOrientation = true;
         }
-//        else if (PictureMimeType.isHasVideo(mimeType)) {
-//            // rjq+: 一些手机拍出的视频是竖屏的但宽高使用data.getInt拿到的是反的，且data.getInt(orientationColumn)=0，使用MediaMetadataRetriever校正视频宽高
-//            // 但是MediaMetadataRetriever获取ROTATION等信息比较耗时不再这里处理
-//            MediaExtraInfo mediaExtraInfo = MediaUtils.getVideoSize(getContext(), absolutePath);
-//            if (mediaExtraInfo.getWidth() > 0 && mediaExtraInfo.getHeight() > 0) {
-//                width = mediaExtraInfo.getWidth();
-//                height = mediaExtraInfo.getHeight();
-//            }
-//        }
         long duration = data.getLong(durationColumn);
         long size = data.getLong(sizeColumn);
         String folderName = data.getString(folderNameColumn);
@@ -398,6 +422,7 @@ public final class LocalMediaLoader extends IBridgeMediaLoader {
         media.setHeight(height);
         media.setSize(size);
         media.setDateAddedTime(dateAdded);
+        media.setNeedCheckVideoOrientation(needCheckOrientation);
         if (mConfig.onQueryFilterListener != null) {
             if (mConfig.onQueryFilterListener.onFilter(media)) {
                 return null;

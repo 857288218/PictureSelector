@@ -81,8 +81,8 @@ public final class SelectorConfig {
     public int language;
     public int defaultLanguage;
     public boolean isDisplayCamera;
-    public boolean isCameraResultAutoSelect; // rjq+: 拍照/视频后的结果是否自动选择
-    public boolean isInsertCameraResult; // rjq+: 拍照/视频后的结果是否自动插入相册
+    public boolean isCameraResultAutoSelect; // rjq+: 相机拍照/视频后的结果是否回到相册页自动选择
+    public boolean isInsertCameraResult; // rjq+: 相机拍照/视频后的结果回到相册页是否自动插入相册
     public boolean isGif;
     public boolean isWebp;
     public boolean isBmp;

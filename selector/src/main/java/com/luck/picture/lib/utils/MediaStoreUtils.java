@@ -10,6 +10,7 @@ import android.text.TextUtils;
 import com.luck.picture.lib.config.PictureMimeType;
 import com.luck.picture.lib.config.SelectorConfig;
 import com.luck.picture.lib.config.SelectMimeType;
+import com.luck.picture.lib.config.SelectorProviders;
 
 import java.io.File;
 
@@ -27,7 +28,8 @@ public class MediaStoreUtils {
      * @param config  PictureSelector配制类
      * @return
      */
-    public static Uri createCameraOutImageUri(Context context, SelectorConfig config) {
+    public static Uri createCameraOutImageUri(Context context) {
+        SelectorConfig config = SelectorProviders.getInstance().getSelectorConfig();
         Uri imageUri;
         String cameraFileName;
         if (TextUtils.isEmpty(config.outPutCameraImageFileName)) {
@@ -56,7 +58,8 @@ public class MediaStoreUtils {
      * @param config  PictureSelector配制类
      * @return
      */
-    public static Uri createCameraOutVideoUri(Context context, SelectorConfig config) {
+    public static Uri createCameraOutVideoUri(Context context) {
+        SelectorConfig config = SelectorProviders.getInstance().getSelectorConfig();
         Uri videoUri;
         String cameraFileName;
         if (TextUtils.isEmpty(config.outPutCameraVideoFileName)) {
