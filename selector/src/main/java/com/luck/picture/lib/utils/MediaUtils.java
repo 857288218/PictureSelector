@@ -308,6 +308,28 @@ public class MediaUtils {
         return mediaExtraInfo;
     }
 
+    public static String getVideoOrientation(Context context, String url) {
+        String orientation = "0";
+        MediaMetadataRetriever retriever = new MediaMetadataRetriever();
+        try {
+            if (PictureMimeType.isContent(url)) {
+                retriever.setDataSource(context, Uri.parse(url));
+            } else {
+                retriever.setDataSource(url);
+            }
+            orientation = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_ROTATION);
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                retriever.release();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        return orientation;
+    }
+
     /**
      * get Local video width or height
      *
