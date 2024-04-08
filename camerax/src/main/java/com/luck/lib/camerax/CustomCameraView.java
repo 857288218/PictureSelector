@@ -253,7 +253,7 @@ public class CustomCameraView extends RelativeLayout implements CameraXOrientati
                         displayId = display.getDisplayId();
                     }
                     fullScreenSize = new Size(mCameraPreviewView.getWidth(), mCameraPreviewView.getHeight());
-                    // rjq+：根据照片宽高比决定CameraPreviewView大小
+                    // rjq+：根据aspectRatio决定CameraPreviewView大小，否则当ImageCapture/VideoCapture设置aspectRatio后预览画面和实际拍出画面不一致
                     screenAspectRatio = aspectRatio(DensityUtil.getScreenWidth(getContext()), DensityUtil.getScreenHeight(getContext()));
                     int height = (int) (4 / 3f * mCameraPreviewView.getWidth());
                     if (screenAspectRatio == AspectRatio.RATIO_16_9) {
@@ -728,7 +728,7 @@ public class CustomCameraView extends RelativeLayout implements CameraXOrientati
             // Preview，mCameraPreviewView本来就是全屏的(match_parent),所以preview不需要设置TargetResolution和ImageCapture一样
             Preview preview = new Preview.Builder()
                     .setTargetRotation(mCameraPreviewView.getDisplay().getRotation())
-                    // todo(rjq) 设置TargetAspectRatio后华为P30预览时卡顿，拍摄时没事
+                    // todo(rjq) 设置TargetAspectRatio后华为P30预览时卡顿，拍摄时没事，xiaomi mix4没事。如果preview不设置TargetAspectRatio，ImageCapture/VideoCapture设置了那预览时画面和拍出的画面不一致
                     .setTargetAspectRatio(screenAspectRatio)
                     .build();
             // ImageCapture
@@ -836,7 +836,7 @@ public class CustomCameraView extends RelativeLayout implements CameraXOrientati
     private void buildVideoCapture() {
         VideoCapture.Builder videoBuilder = new VideoCapture.Builder();
         // 全屏录制
-//        videoBuilder.setTargetResolution(new Size(mCameraPreviewView.getWidth(), mCameraPreviewView.getHeight()));
+//        videoBuilder.setTargetResolution(fullScreenSize); // VideoCapture设置TargetResolution为fullScreenSize后拍出的视频比预览时模糊
         videoBuilder.setTargetAspectRatio(screenAspectRatio);
         videoBuilder.setTargetRotation(mCameraPreviewView.getDisplay().getRotation());
         if (videoFrameRate > 0) {
