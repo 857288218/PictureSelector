@@ -121,7 +121,7 @@ public class MediaStoreUtils {
             values.put(MediaStore.Images.Media.DISPLAY_NAME, DateUtils.getCreateFileName("IMG_"));
         } else {
             if (customFileName.lastIndexOf(".") == -1) {
-                values.put(MediaStore.Images.Media.DISPLAY_NAME, DateUtils.getCreateFileName("IMG_"));
+                values.put(MediaStore.Images.Media.DISPLAY_NAME, customFileName);
             } else {
                 String suffix = customFileName.substring(customFileName.lastIndexOf("."));
                 String fileName = customFileName.replaceAll(suffix, "");
@@ -177,7 +177,7 @@ public class MediaStoreUtils {
             values.put(MediaStore.Video.Media.DISPLAY_NAME, DateUtils.getCreateFileName("VID_"));
         } else {
             if (customFileName.lastIndexOf(".") == -1) {
-                values.put(MediaStore.Video.Media.DISPLAY_NAME, DateUtils.getCreateFileName("VID_"));
+                values.put(MediaStore.Video.Media.DISPLAY_NAME, customFileName);
             } else {
                 String suffix = customFileName.substring(customFileName.lastIndexOf("."));
                 String fileName = customFileName.replaceAll(suffix, "");
