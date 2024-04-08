@@ -378,6 +378,10 @@ public final class SelectorConfig {
         onSelectFilterListener = null;
         onPermissionDescriptionListener = null;
         onPermissionDeniedListener = null;
+        onBottomNavBarSelectedChangeListener = null;
+        onCompleteSelectViewSelectedChangeListener = null;
+        onDispatchCameraMediaResultListener = null;
+        onOpenCameraClickInterceptorListener = null;
         onRecordAudioListener = null;
         onQueryFilterListener = null;
         onBitmapWatermarkListener = null;
