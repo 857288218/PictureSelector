@@ -1007,6 +1007,11 @@ public final class PictureSelectionModel {
         return this;
     }
 
+    public PictureSelectionModel setOutputCameraImageRelativePath(String path) {
+        selectionConfig.outputCameraImageRelativePath = path;
+        return this;
+    }
+
     /**
      * Camera VIDEO custom local file name
      * # Such as xxx.png
@@ -1016,6 +1021,11 @@ public final class PictureSelectionModel {
      */
     public PictureSelectionModel setOutputCameraVideoFileName(String fileName) {
         selectionConfig.outPutCameraVideoFileName = fileName;
+        return this;
+    }
+
+    public PictureSelectionModel setOutputCameraVideoRelativePath(String path) {
+        selectionConfig.outputCameraVideoRelativePath = path;
         return this;
     }
 

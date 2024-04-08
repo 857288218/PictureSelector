@@ -1,6 +1,7 @@
 package com.luck.picture.lib.config;
 
 import android.content.pm.ActivityInfo;
+import android.os.Environment;
 
 import com.luck.picture.lib.R;
 import com.luck.picture.lib.basic.IBridgeLoaderFactory;
@@ -111,6 +112,8 @@ public final class SelectorConfig {
     public String sandboxDir;
     public String originalPath;
     public String cameraPath;
+    public String outputCameraImageRelativePath;
+    public String outputCameraVideoRelativePath;
     public String sortOrder;
     public String defaultAlbumName;
     public String defaultVideoFolderName;
@@ -262,6 +265,8 @@ public final class SelectorConfig {
         sandboxDir = "";
         originalPath = "";
         cameraPath = "";
+        outputCameraImageRelativePath = PictureMimeType.DCIM;
+        outputCameraVideoRelativePath = PictureMimeType.DCIM;
         pageSize = PictureConfig.MAX_PAGE_SIZE;
         isPageStrategy = true;
         isFilterInvalidFile = false;

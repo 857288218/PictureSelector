@@ -39,7 +39,7 @@ public class MediaStoreUtils {
                     ? config.outPutCameraImageFileName : System.currentTimeMillis() + "_" + config.outPutCameraImageFileName;
         }
         if (SdkVersionUtils.isQ() && TextUtils.isEmpty(config.outPutCameraDir)) {
-            imageUri = createImageUri(context, cameraFileName, config.cameraImageFormatForQ);
+            imageUri = createImageUri(context, cameraFileName, config.cameraImageFormatForQ, config.outputCameraImageRelativePath);
             config.cameraPath = imageUri != null ? imageUri.toString() : "";
         } else {
             File cameraFile = PictureFileUtils.createCameraFile(context, SelectMimeType.TYPE_IMAGE,
@@ -69,7 +69,7 @@ public class MediaStoreUtils {
                     ? config.outPutCameraVideoFileName : System.currentTimeMillis() + "_" + config.outPutCameraVideoFileName;
         }
         if (SdkVersionUtils.isQ() && TextUtils.isEmpty(config.outPutCameraDir)) {
-            videoUri = createVideoUri(context, cameraFileName, config.cameraVideoFormatForQ);
+            videoUri = createVideoUri(context, cameraFileName, config.cameraVideoFormatForQ, config.outputCameraVideoRelativePath);
             config.cameraPath = videoUri != null ? videoUri.toString() : "";
         } else {
             File cameraFile = PictureFileUtils.createCameraFile(context, SelectMimeType.TYPE_VIDEO,
@@ -89,11 +89,11 @@ public class MediaStoreUtils {
      * @param mimeType       资源类型
      * @return
      */
-    public static Uri createImageUri(final Context ctx, String cameraFileName, String mimeType) {
+    public static Uri createImageUri(final Context ctx, String cameraFileName, String mimeType, String relativePath) {
         Context context = ctx.getApplicationContext();
         Uri[] imageFilePath = {null};
         String status = Environment.getExternalStorageState();
-        ContentValues contentValues = buildImageContentValues(cameraFileName, mimeType);
+        ContentValues contentValues = buildImageContentValues(cameraFileName, mimeType, relativePath);
         // 判断是否有SD卡,优先使用SD卡存储,当没有SD卡时使用手机存储
         if (status.equals(Environment.MEDIA_MOUNTED)) {
             imageFilePath[0] = context.getContentResolver()
@@ -113,7 +113,7 @@ public class MediaStoreUtils {
      * @param mimeType       资源类型
      * @return
      */
-    public static ContentValues buildImageContentValues(String customFileName, String mimeType) {
+    public static ContentValues buildImageContentValues(String customFileName, String mimeType, String relativePath) {
         String time = ValueOf.toString(System.currentTimeMillis());
         // ContentValues是我们希望这条记录被创建时包含的数据信息
         ContentValues values = new ContentValues(3);
@@ -131,7 +131,7 @@ public class MediaStoreUtils {
         values.put(MediaStore.Images.Media.MIME_TYPE, TextUtils.isEmpty(mimeType) || mimeType.startsWith(PictureMimeType.MIME_TYPE_PREFIX_VIDEO) ? PictureMimeType.MIME_TYPE_IMAGE : mimeType);
         if (SdkVersionUtils.isQ()) {
             values.put(MediaStore.Images.Media.DATE_TAKEN, time);
-            values.put(MediaStore.Images.Media.RELATIVE_PATH, PictureMimeType.DCIM);
+            values.put(MediaStore.Images.Media.RELATIVE_PATH, relativePath);
         }
         return values;
     }
@@ -145,12 +145,12 @@ public class MediaStoreUtils {
      * @param mimeType       资源类型
      * @return
      */
-    public static Uri createVideoUri(final Context ctx, String cameraFileName, String mimeType) {
+    public static Uri createVideoUri(final Context ctx, String cameraFileName, String mimeType, String relativePath) {
         Context context = ctx.getApplicationContext();
         Uri[] imageFilePath = {null};
         String status = Environment.getExternalStorageState();
         // ContentValues是我们希望这条记录被创建时包含的数据信息
-        ContentValues contentValues = buildVideoContentValues(cameraFileName, mimeType);
+        ContentValues contentValues = buildVideoContentValues(cameraFileName, mimeType, relativePath);
         // 判断是否有SD卡,优先使用SD卡存储,当没有SD卡时使用手机存储
         if (status.equals(Environment.MEDIA_MOUNTED)) {
             imageFilePath[0] = context.getContentResolver()
@@ -169,7 +169,7 @@ public class MediaStoreUtils {
      * @param mimeType       资源类型
      * @return
      */
-    public static ContentValues buildVideoContentValues(String customFileName, String mimeType) {
+    public static ContentValues buildVideoContentValues(String customFileName, String mimeType, String relativePath) {
         String time = ValueOf.toString(System.currentTimeMillis());
         // ContentValues是我们希望这条记录被创建时包含的数据信息
         ContentValues values = new ContentValues(3);
@@ -187,7 +187,7 @@ public class MediaStoreUtils {
         values.put(MediaStore.Video.Media.MIME_TYPE, TextUtils.isEmpty(mimeType) || mimeType.startsWith(PictureMimeType.MIME_TYPE_PREFIX_IMAGE) ? PictureMimeType.MIME_TYPE_VIDEO : mimeType);
         if (SdkVersionUtils.isQ()) {
             values.put(MediaStore.Video.Media.DATE_TAKEN, time);
-            values.put(MediaStore.Video.Media.RELATIVE_PATH, Environment.DIRECTORY_MOVIES);
+            values.put(MediaStore.Video.Media.RELATIVE_PATH, relativePath);
         }
         return values;
     }
