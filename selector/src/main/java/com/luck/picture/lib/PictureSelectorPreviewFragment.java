@@ -128,6 +128,8 @@ public class PictureSelectorPreviewFragment extends PictureCommonFragment {
 
     protected TextView tvSelected;
     private final ViewPager2.OnPageChangeCallback pageChangeCallback = new ViewPager2.OnPageChangeCallback() {
+        //rjq+: 标识是否执行过onPageSelected，目前用于标识滑动时自动播放
+        private boolean isScrolled = false;
         @Override
         public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
             if (mData.size() > position) {
@@ -152,7 +154,12 @@ public class PictureSelectorPreviewFragment extends PictureCommonFragment {
                     if (isInternalBottomPreview && selectorConfig.isAutoVideoPlay) {
                         startAutoVideoPlay(position);
                     } else {
-                        viewPageAdapter.setVideoPlayButtonUI(position);
+                        // rjq+: 判断滑动时是否自动播放
+                        if (selectorConfig.isAutoVideoPlay && isScrolled) {
+                            startAutoVideoPlay(position);
+                        } else {
+                            viewPageAdapter.setVideoPlayButtonUI(position);
+                        }
                     }
                 } else {
                     if (selectorConfig.isAutoVideoPlay) {
@@ -172,6 +179,7 @@ public class PictureSelectorPreviewFragment extends PictureCommonFragment {
                         }
                     }
                 }
+                isScrolled = true;
             }
         }
     };
