@@ -241,7 +241,7 @@ public final class LocalMediaPageLoader extends IBridgeMediaLoader {
                             for (int i=0; i<result.data.size(); i++) {
                                 LocalMedia media = result.data.get(i);
                                 if (media.getNeedCheckVideoOrientation()) {
-                                    String orientation = MediaUtils.getVideoOrientation(getContext(), media.getRealPath());
+                                    String orientation = MediaUtils.getVideoOrientation(getContext(), media.getPath());
                                     if ((TextUtils.equals("90", orientation) || TextUtils.equals("270", orientation))) {
                                         int height = media.getWidth();
                                         media.setWidth(media.getHeight());
