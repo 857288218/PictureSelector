@@ -74,6 +74,8 @@ public class SelectMainStyle {
     private int previewSelectNumTextSize;
     // rjq+: 预览页选择框中num字体颜色
     private int previewSelectNumTextColor;
+    // rjq+: 预览页是否显示选中按钮
+    private boolean isShowPreviewSelect = true;
 
     /**
      * 预览页选择按钮字体颜色
@@ -503,6 +505,14 @@ public class SelectMainStyle {
 
     public void setPreviewSelectNumTextColor(int textColor) {
         this.previewSelectNumTextColor = textColor;
+    }
+
+    public boolean isShowPreviewSelect() {
+        return isShowPreviewSelect;
+    }
+
+    public void setShowPreviewSelect(boolean select) {
+        this.isShowPreviewSelect = select;
     }
 
     public int getPreviewSelectTextColor() {

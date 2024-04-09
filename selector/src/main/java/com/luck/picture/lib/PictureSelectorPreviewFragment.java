@@ -725,6 +725,15 @@ public class PictureSelectorPreviewFragment extends PictureCommonFragment {
                 }
             }
         }
+        if (selectorConfig.selectorStyle.getSelectMainStyle().isShowPreviewSelect()) {
+            tvSelected.setVisibility(View.VISIBLE);
+            tvSelectedWord.setVisibility(View.VISIBLE);
+            selectClickArea.setVisibility(View.VISIBLE);
+        } else {
+            tvSelected.setVisibility(View.GONE);
+            tvSelectedWord.setVisibility(View.GONE);
+            selectClickArea.setVisibility(View.GONE);
+        }
         completeSelectView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
