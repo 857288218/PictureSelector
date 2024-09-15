@@ -91,7 +91,8 @@ public final class SelectorConfig {
     public boolean isEnablePreviewImage;
     public boolean isEnablePreviewVideo;
     public boolean isEnablePreviewAudio;
-    public boolean isPreviewFullScreenMode;
+    public boolean isPreviewFullScreenMode; // 是否开启预览图片全屏效果，预览图片会填充到状态栏且单击图片会隐藏topBar和bottomBar
+    public boolean isPreviewFullScreenModeClickExit; // rjq+: isPreviewFullScreenMode = true时单击图片是否退出，默认单击图片隐藏topBar和bottomBar
     public boolean isPreviewSelectReturn; // rjq+：预览选中后返回相册，反选不返回相册
     public boolean isAlbumFolderSortByTime; // rjq: 相册列表是否按时间排序，默认按数量
     public boolean isPreviewZoomEffect;

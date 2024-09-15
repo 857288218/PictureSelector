@@ -165,6 +165,11 @@ public final class PictureSelectionPreviewModel {
         return this;
     }
 
+    public PictureSelectionPreviewModel isPreviewFullScreenModeClickExit(boolean clickExit) {
+        selectionConfig.isPreviewFullScreenModeClickExit = clickExit;
+        return this;
+    }
+
     /**
      * Preview Zoom Effect Mode
      *

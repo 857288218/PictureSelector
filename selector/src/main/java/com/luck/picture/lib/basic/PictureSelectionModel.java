@@ -1250,6 +1250,11 @@ public final class PictureSelectionModel {
         return this;
     }
 
+    public PictureSelectionModel isPreviewFullScreenModeClickExit(boolean clickExit) {
+        selectionConfig.isPreviewFullScreenModeClickExit = clickExit;
+        return this;
+    }
+
     public PictureSelectionModel isPreviewSelectReturn(boolean selectReturn) {
         selectionConfig.isPreviewSelectReturn = selectReturn;
         return this;

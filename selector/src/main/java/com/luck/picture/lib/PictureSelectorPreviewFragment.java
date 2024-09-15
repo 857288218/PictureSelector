@@ -1667,7 +1667,7 @@ public class PictureSelectorPreviewFragment extends PictureCommonFragment {
 
         @Override
         public void onBackPressed() {
-            if (selectorConfig.isPreviewFullScreenMode) {
+            if (selectorConfig.isPreviewFullScreenMode && !selectorConfig.isPreviewFullScreenModeClickExit) {
                 previewFullScreenMode();
             } else {
                 if (isExternalPreview) {
